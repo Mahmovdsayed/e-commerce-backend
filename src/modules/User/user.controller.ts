@@ -5,6 +5,7 @@ import sendEmailService from "../../utils/email.js";
 import { AppError } from "../../utils/AppError.js";
 import { generateOTP } from "../../helpers/generateOTP.js";
 import jwt from "jsonwebtoken";
+import { isValidObjectId } from "mongoose";
 
 const signUpHandler = async (
   req: Request,
@@ -164,7 +165,7 @@ const refreshTokenHandler = async (
   }
 };
 
-const logoutHandler = async (
+const signOutHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -190,23 +191,80 @@ const logoutHandler = async (
   }
 };
 
-const signOutHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {};
-
 const getUserHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {};
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const authUser = (req as any).authUser;
+
+    if (!id) return next(new AppError("User ID is required", 400));
+    if (!isValidObjectId(id)) return next(new AppError("Invalid User ID", 400));
+
+    if (id !== authUser._id.toString() && authUser.role !== "admin")
+      return next(new AppError("Forbidden access", 403));
+
+    const user = await User.findById(id)
+      .select("-password -otp -otpExpiry -refreshToken -__v")
+      .lean();
+    if (!user) return next(new AppError("User not found", 404));
+
+    res.status(200).json({
+      success: true,
+      message: "User fetched successfully",
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 const updateUserHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {};
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const authUser = (req as any).authUser;
+
+    if (!id) return next(new AppError("User ID is required", 400));
+    if (!isValidObjectId(id)) return next(new AppError("Invalid User ID", 400));
+
+    if (id !== authUser._id.toString() && authUser.role !== "admin") {
+      return next(new AppError("Forbidden access", 403));
+    }
+
+    const { name, email, password } = req.body;
+    if (!name && !email && !password)
+      return next(new AppError("Name or email or password is required", 400));
+
+    const isEmailTaken = await User.findOne({ email, _id: { $ne: id } });
+    if (isEmailTaken) return next(new AppError("Email is already taken", 409));
+
+    const updateData: any = { name, email };
+    if (password) {
+      updateData.password = await hashPassword(password);
+    }
+
+    const user = await User.findByIdAndUpdate(id, updateData, {
+      new: true,
+      select: "-password -otp -otpExpiry -refreshToken -__v",
+    }).lean();
+
+    if (!user) return next(new AppError("User not found", 404));
+
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 const deleteUserHandler = async (
   req: Request,
@@ -222,5 +280,4 @@ export {
   updateUserHandler,
   deleteUserHandler,
   refreshTokenHandler,
-  logoutHandler,
 };
