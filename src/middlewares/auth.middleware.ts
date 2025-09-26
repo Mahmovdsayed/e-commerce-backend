@@ -38,7 +38,7 @@ export const auth = () => {
 
       const findUser = await User.findById(
         decodedData.id,
-        "_id username email createdAt updatedAt"
+        "_id username email role createdAt updatedAt"
       );
       if (!findUser) {
         const error = new Error("please signUp first");
