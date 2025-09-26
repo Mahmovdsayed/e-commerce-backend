@@ -28,18 +28,16 @@ export const auth = () => {
 
       const decodedData = jwt.verify(token, process.env.LOGIN_SIG || "") as {
         id?: string;
+        role?: string;
       };
 
-      if (!decodedData || !decodedData.id) {
+      if (!decodedData || !decodedData.id || !decodedData.role) {
         const error = new Error("invalid token payload");
         (error as any).status = 400;
         return next(error);
       }
 
-      const findUser = await User.findById(
-        decodedData.id,
-        "_id username email role createdAt updatedAt"
-      );
+      const findUser = await User.findById(decodedData.id, "_id role");
       if (!findUser) {
         const error = new Error("please signUp first");
         (error as any).status = 404;

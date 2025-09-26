@@ -18,6 +18,7 @@ export interface IUser extends Document {
   otp: string;
   otpExpiry: Date;
   isVerified: boolean;
+  refreshToken?: string;
 }
 
 const userSchema = new Schema<IUser>(
@@ -45,8 +46,9 @@ const userSchema = new Schema<IUser>(
     otp: { type: String },
     otpExpiry: { type: Date },
     isVerified: { type: Boolean, default: false },
+    refreshToken: { type: String },
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 const User: Model<IUser> =

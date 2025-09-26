@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import User from "../../DB/Models/user.model.js";
-import { hashPassword } from "../../helpers/hashPassword.js";
+import { hashPassword, verifyPassword } from "../../helpers/hashPassword.js";
 import sendEmailService from "../../utils/email.js";
 import { AppError } from "../../utils/AppError.js";
 import { generateOTP } from "../../helpers/generateOTP.js";
+import jwt from "jsonwebtoken";
 
 const signUpHandler = async (
   req: Request,
@@ -12,6 +13,8 @@ const signUpHandler = async (
 ): Promise<void> => {
   try {
     const { name, email, password } = req.body;
+    if (!name || !email || !password)
+      return next(new AppError("All fields are required", 400));
 
     const existingUser = await User.findOne({ email });
     if (existingUser) return next(new AppError("User already exists", 400));
@@ -60,7 +63,132 @@ const signInHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {};
+): Promise<void> => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password)
+      return next(new AppError("All fields are required", 400));
+
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) return next(new AppError("Invalid credentials", 401));
+
+    if (!existingUser.isVerified)
+      return next(
+        new AppError("Please verify your email before signing in", 400)
+      );
+
+    const isPasswordValid = await verifyPassword(
+      password,
+      existingUser.password
+    );
+    if (!isPasswordValid) return next(new AppError("Invalid credentials", 401));
+
+    const accessToken = jwt.sign(
+      { id: existingUser._id, role: existingUser.role },
+      process.env.LOGIN_SIG || "",
+      { expiresIn: "15m" }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: existingUser._id },
+      process.env.REFRESH_SIG || "",
+      { expiresIn: "30d" }
+    );
+
+    existingUser.refreshToken = refreshToken;
+    await existingUser.save();
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `User signed in successfully`,
+      accessToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const refreshTokenHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) return next(new AppError("No refresh token", 401));
+
+    const user = await User.findOne({ refreshToken });
+    if (!user) return next(new AppError("Invalid refresh token", 403));
+
+    jwt.verify(
+      refreshToken,
+      process.env.REFRESH_SIG!,
+      async (err: any, decoded: any) => {
+        if (err)
+          return next(new AppError("Invalid or expired refresh token", 403));
+
+        const newAccessToken = jwt.sign(
+          { id: user._id, role: user.role },
+          process.env.LOGIN_SIG!,
+          { expiresIn: "15m" }
+        );
+
+        const newRefreshToken = jwt.sign(
+          { id: user._id },
+          process.env.REFRESH_SIG!,
+          { expiresIn: "30d" }
+        );
+
+        user.refreshToken = newRefreshToken;
+        await user.save();
+
+        res.cookie("refreshToken", newRefreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          maxAge: 30 * 24 * 60 * 60 * 1000,
+        });
+
+        res.json({ success: true, accessToken: newAccessToken });
+      }
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+const logoutHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) return next(new AppError("No refresh token", 400));
+
+    const user = await User.findOne({ refreshToken });
+    if (user) {
+      user.refreshToken = undefined;
+      await user.save();
+    }
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+    });
+    res.json({ success: true, message: "Logged out successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
 
 const signOutHandler = async (
   req: Request,
@@ -93,4 +221,6 @@ export {
   getUserHandler,
   updateUserHandler,
   deleteUserHandler,
+  refreshTokenHandler,
+  logoutHandler,
 };

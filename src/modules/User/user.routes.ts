@@ -1,8 +1,16 @@
 import { Router } from "express";
 import { validationMiddleware } from "../../middlewares/validation.middleware.js";
-import { signUpValidationSchema } from "./user.validationSchemas.js";
+import {
+  signInValidationSchema,
+  signUpValidationSchema,
+} from "./user.validationSchemas.js";
 import expressAsyncHandler from "express-async-handler";
-import { signUpHandler } from "./user.controller.js";
+import {
+  logoutHandler,
+  refreshTokenHandler,
+  signInHandler,
+  signUpHandler,
+} from "./user.controller.js";
 
 const router = Router();
 
@@ -11,5 +19,15 @@ router.post(
   validationMiddleware({ body: signUpValidationSchema }),
   expressAsyncHandler(signUpHandler)
 );
+
+router.post(
+  "/signin",
+  validationMiddleware({ body: signInValidationSchema }),
+  expressAsyncHandler(signInHandler)
+);
+
+router.post("/logout", expressAsyncHandler(logoutHandler));
+
+router.post("/refresh-token", expressAsyncHandler(refreshTokenHandler));
 
 export default router;

@@ -5,15 +5,17 @@ import cors from "cors";
 import { connectToDatabase } from "./DB/connection.js";
 import authRouter from "./modules/User/user.routes.js";
 import { globalResponse } from "./middlewares/globalResponse.js";
+import cookieParser from "cookie-parser";
 
 config({ path: "./.env.local" });
 
 const app = express();
 
 // ✅ Global middlewares
-app.use(cors());
+app.use(cors({ origin: "*", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // ✅ Routes
 app.use("/auth", authRouter);
