@@ -6,7 +6,7 @@ import { connectToDatabase } from "./DB/connection.js";
 import authRouter from "./modules/User/user.routes.js";
 import { globalResponse } from "./middlewares/globalResponse.js";
 
-config({ path: "./config/dev.config.env" });
+config({ path: "./.env.local" });
 
 const app = express();
 

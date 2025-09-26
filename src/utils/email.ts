@@ -23,7 +23,7 @@ const sendEmailService = async ({
   });
 
   const info: SentMessageInfo = await transporter.sendMail({
-    from: `"Blog Platform " <${process.env.EMAIL}>`,
+    from: `E-commerce <${process.env.EMAIL}>`,
     to,
     subject,
     html: message,

@@ -15,12 +15,21 @@ export interface IUser extends Document {
       phone: string;
     }
   ];
+  otp: string;
+  otpExpiry: Date;
+  isVerified: boolean;
 }
 
 const userSchema = new Schema<IUser>(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    name: { type: String, required: true, lowercase: true },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+    },
     password: { type: String, required: true },
     role: { type: String, enum: ["customer", "admin"], default: "customer" },
     address: [
@@ -33,6 +42,9 @@ const userSchema = new Schema<IUser>(
         phone: { type: String },
       },
     ],
+    otp: { type: String },
+    otpExpiry: { type: Date },
+    isVerified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
