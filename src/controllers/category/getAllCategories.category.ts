@@ -23,6 +23,7 @@ export const getAllCategories = async (
 
     res.status(200).json({
       success: true,
+      message: "Categories fetched successfully",
       page,
       limit,
       total_pages,

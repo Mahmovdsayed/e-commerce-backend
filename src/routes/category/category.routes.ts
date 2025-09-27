@@ -8,6 +8,8 @@ import { addCategorySchema } from "../../validation/category/category.validation
 import { multerMiddleWareLocal } from "../../middlewares/multer.js";
 import allowedExtensions from "../../utils/allowedExtensions.js";
 import { getAllCategories } from "../../controllers/category/getAllCategories.category.js";
+import { getCategoryInfo } from "../../controllers/category/getCategoryInfo.category.js";
+import { updateCategory } from "../../controllers/category/updateCategory.category.js";
 
 const router = Router();
 
@@ -23,5 +25,16 @@ router.post(
 );
 
 router.get("/all", expressAsyncHandler(getAllCategories));
+router.get("/:id", expressAsyncHandler(getCategoryInfo));
+router.patch(
+  "/edit/:id",
+  auth(),
+  adminAuth(),
+  multerMiddleWareLocal({ extensions: allowedExtensions.image }).single(
+    "image"
+  ),
+  validationMiddleware({ body: addCategorySchema }),
+  expressAsyncHandler(updateCategory)
+);
 
 export default router;

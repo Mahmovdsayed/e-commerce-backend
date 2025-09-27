@@ -48,5 +48,6 @@ export const addCategorySchema = z.object({
       {
         message: "Image size should be less than 5MB",
       }
-    ),
+    )
+    .optional(),
 });

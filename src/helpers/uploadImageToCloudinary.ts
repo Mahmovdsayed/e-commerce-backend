@@ -71,47 +71,51 @@ const uploadBannerToCloudinary = async (
 };
 
 const updateImageInCloudinary = async (
-  image: File,
+  image: Express.Multer.File,
   folderName: string,
-  publicId: string
-) => {
-  if (!allowedImageTypes.includes(image.type)) {
-    new Error("Invalid image format. Allowed formats: PNG, JPEG, JPG");
-  }
-
-  if (publicId) {
-    try {
-      await cloudinary.uploader.destroy(publicId);
-    } catch (error) {
-      new Error("Failed to delete old image from Cloudinary.");
+  publicId?: string
+): Promise<{ imageUrl: string; publicId: string }> => {
+  try {
+    if (publicId) {
+      try {
+        await cloudinary.uploader.destroy(publicId);
+      } catch (err: any) {
+        throw new Error(`Failed to delete old image: ${err.message}`);
+      }
     }
+
+    return new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: `e-commerce/${folderName}`,
+          width: 500,
+          height: 500,
+          crop: "fill",
+          gravity: "faces",
+          use_filename: true,
+          unique_filename: false,
+          quality: "auto:eco",
+          format: "webp",
+        },
+        (error, result) => {
+          if (error || !result) {
+            return reject(
+              new Error(`Cloudinary update failed: ${error?.message}`)
+            );
+          }
+
+          resolve({
+            imageUrl: result.secure_url,
+            publicId: result.public_id,
+          });
+        }
+      );
+
+      stream.end(image.buffer);
+    });
+  } catch (error: any) {
+    throw new Error(`updateImageInCloudinary failed: ${error.message}`);
   }
-
-  const buffer = Buffer.from(await image.arrayBuffer());
-
-  const uploadResult = await cloudinary.uploader.upload(
-    `data:${image.type};base64,${buffer.toString("base64")}`,
-    {
-      folder: `e-commerce/${folderName}`,
-      width: 500,
-      height: 500,
-      crop: "fill",
-      gravity: "faces",
-      use_filename: true,
-      unique_filename: false,
-      quality: "100",
-      format: "webp",
-    }
-  );
-
-  if (!uploadResult || !uploadResult.secure_url || !uploadResult.public_id) {
-    new Error("Failed to upload image to Cloudinary.");
-  }
-
-  return {
-    imageUrl: uploadResult.secure_url,
-    publicId: uploadResult.public_id,
-  };
 };
 
 const deleteImageFromCloudinary = async (publicId: string) => {

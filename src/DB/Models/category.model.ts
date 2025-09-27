@@ -4,7 +4,10 @@ import imageSchema from "./image.model.js";
 export interface ICategory extends Document {
   name: string;
   description?: string;
-  image?: typeof imageSchema;
+  image?: {
+    url: string;
+    public_id: string;
+  };
   slug: string;
   isActive: boolean;
   metaTitle?: string;
