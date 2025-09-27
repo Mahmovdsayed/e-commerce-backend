@@ -19,6 +19,10 @@ export interface IUser extends Document {
   otpExpiry: Date;
   isVerified: boolean;
   refreshToken?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+  provider: "local" | "google";
+  avatar?: string;
 }
 
 const userSchema = new Schema<IUser>(
@@ -47,6 +51,10 @@ const userSchema = new Schema<IUser>(
     otpExpiry: { type: Date },
     isVerified: { type: Boolean, default: false },
     refreshToken: { type: String },
+    resetPasswordExpires: { type: Date },
+    resetPasswordToken: { type: String },
+    provider: { type: String, enum: ["local", "google"], default: "local" },
+    avatar: { type: String },
   },
   { timestamps: true, versionKey: false }
 );

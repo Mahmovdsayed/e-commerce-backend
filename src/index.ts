@@ -3,7 +3,8 @@ import { config } from "dotenv";
 import cors from "cors";
 
 import { connectToDatabase } from "./DB/connection.js";
-import authRouter from "./modules/User/user.routes.js";
+import authRouter from "./routes/auth/auth.routes.js";
+import userRouter from "./routes/user/user.routes.js";
 import { globalResponse } from "./middlewares/globalResponse.js";
 import cookieParser from "cookie-parser";
 
@@ -19,13 +20,15 @@ app.use(cookieParser());
 
 // ✅ Routes
 app.use("/auth", authRouter);
+app.use("/user", userRouter);
 
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
   try {
     res.json({
-      projectName: "NodeJS Starter",
+      projectName: "E-Commerce API",
       version: "1.0.0",
-      description: "A starter project for NodeJS",
+      description:
+        "An e-commerce API built with Node.js, Express, and TypeScript.",
       author: "Mahmoud Sayed",
       email: "mahmoudsayed3576@gmail.com",
       license: "MIT",
