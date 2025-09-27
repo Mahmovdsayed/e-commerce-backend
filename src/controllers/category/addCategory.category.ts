@@ -4,10 +4,8 @@ import { uploadImageToCloudinary } from "../../helpers/uploadImageToCloudinary.j
 import categoryModel from "../../DB/Models/category.model.js";
 import { imageNotFoundURL } from "../../utils/statics.js";
 import { slugifyText } from "../../helpers/slugify.js";
+import AuthRequest from "../../types/AuthRequest.types.js";
 
-interface AuthRequest extends Request {
-  authUser: { _id: string; role: string };
-}
 
 export const addCategoryHandler = async (
   req: Request,

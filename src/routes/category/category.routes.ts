@@ -6,6 +6,8 @@ import { auth } from "../../middlewares/auth.middleware.js";
 import { adminAuth } from "../../middlewares/admin.middleware.js";
 import { addCategorySchema } from "../../validation/category/category.validation.js";
 import { multerMiddleWareLocal } from "../../middlewares/multer.js";
+import allowedExtensions from "../../utils/allowedExtensions.js";
+import { getAllCategories } from "../../controllers/category/getAllCategories.category.js";
 
 const router = Router();
 
@@ -13,9 +15,13 @@ router.post(
   "/add",
   auth(),
   adminAuth(),
-  multerMiddleWareLocal({}).single("image"),
+  multerMiddleWareLocal({ extensions: allowedExtensions.image }).single(
+    "image"
+  ),
   validationMiddleware({ body: addCategorySchema }),
   expressAsyncHandler(addCategoryHandler)
 );
+
+router.get("/all", expressAsyncHandler(getAllCategories));
 
 export default router;
