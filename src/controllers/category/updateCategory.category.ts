@@ -23,7 +23,7 @@ export const updateCategory = async (
 
     const { name, description, metaTitle, metaDescription, slug } = req.body;
     const image = req.file;
-    
+
     if (!name || !name.trim())
       return next(new AppError("Name is required", 400));
 

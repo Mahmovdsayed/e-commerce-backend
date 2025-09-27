@@ -4,7 +4,7 @@ import expressAsyncHandler from "express-async-handler";
 import { addCategoryHandler } from "../../controllers/category/addCategory.category.js";
 import { auth } from "../../middlewares/auth.middleware.js";
 import { adminAuth } from "../../middlewares/admin.middleware.js";
-import { addCategorySchema } from "../../validation/category/category.validation.js";
+import { addCategorySchema, updateCategorySchema } from "../../validation/category/category.validation.js";
 import { multerMiddleWareLocal } from "../../middlewares/multer.js";
 import allowedExtensions from "../../utils/allowedExtensions.js";
 import { getAllCategories } from "../../controllers/category/getAllCategories.category.js";
@@ -33,7 +33,7 @@ router.patch(
   multerMiddleWareLocal({ extensions: allowedExtensions.image }).single(
     "image"
   ),
-  validationMiddleware({ body: addCategorySchema }),
+  validationMiddleware({ body: updateCategorySchema }),
   expressAsyncHandler(updateCategory)
 );
 
