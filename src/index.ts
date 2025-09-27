@@ -5,6 +5,7 @@ import cors from "cors";
 import { connectToDatabase } from "./DB/connection.js";
 import authRouter from "./routes/auth/auth.routes.js";
 import userRouter from "./routes/user/user.routes.js";
+import categoryRouter from "./routes/category/category.routes.js";
 import { globalResponse } from "./middlewares/globalResponse.js";
 import cookieParser from "cookie-parser";
 
@@ -21,6 +22,7 @@ app.use(cookieParser());
 // ✅ Routes
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
+app.use("/category", categoryRouter);
 
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
   try {

@@ -2,7 +2,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { config } from "dotenv";
 import "dotenv/config";
 
-config({ path: "../../.env.local" });
+config({ path: "./.env.local" });
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -14,43 +14,45 @@ const allowedImageTypes = ["image/png", "image/jpeg", "image/jpg"];
 
 const uploadImageToCloudinary = async (
   image: Express.Multer.File,
-  userName: string,
   folderName: string
-) => {
-  try {
-    if (!image.buffer) throw new Error("No file buffer found");
+): Promise<{ imageUrl: string; publicId: string }> => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: `e-commerce/${folderName}`,
+        width: 500,
+        height: 500,
+        crop: "fill",
+        quality: "auto:eco",
+        format: "webp",
+      },
+      (error, result) => {
+        if (error || !result) {
+          return reject(
+            new Error(`Cloudinary upload failed: ${error?.message}`)
+          );
+        }
 
-    const b64 = Buffer.from(image.buffer).toString("base64");
-    const dataURI = `data:${image.mimetype};base64,${b64}`;
+        resolve({
+          imageUrl: result.secure_url,
+          publicId: result.public_id,
+        });
+      }
+    );
 
-    const uploadResult = await cloudinary.uploader.upload(dataURI, {
-      folder: `blogPlatform/userImages/${userName}/${folderName}`,
-      width: 500,
-      height: 500,
-      crop: "fill",
-      quality: "auto:best",
-      format: "webp",
-    });
-
-    return {
-      imageUrl: uploadResult.secure_url,
-      publicId: uploadResult.public_id,
-    };
-  } catch (error: any) {
-    throw new Error(`Cloudinary upload failed: ${error.message}`);
-  }
+    stream.end(image.buffer);
+  });
 };
 
 const uploadBannerToCloudinary = async (
   image: Express.Multer.File,
-  userName: any,
   folderName: string
 ) => {
   const b64 = Buffer.from(image.buffer).toString("base64");
   const dataURI = `data:${image.mimetype};base64,${b64}`;
 
   const uploadResult = await cloudinary.uploader.upload(dataURI, {
-    folder: `blogPlatform/userImages/${userName}/${folderName}`,
+    folder: `e-commerce/${folderName}`,
     width: 1920,
     height: 1080,
     crop: "fill",
@@ -70,7 +72,6 @@ const uploadBannerToCloudinary = async (
 
 const updateImageInCloudinary = async (
   image: File,
-  userName: any,
   folderName: string,
   publicId: string
 ) => {
@@ -91,7 +92,7 @@ const updateImageInCloudinary = async (
   const uploadResult = await cloudinary.uploader.upload(
     `data:${image.type};base64,${buffer.toString("base64")}`,
     {
-      folder: `portfolio/userImages/${userName}/${folderName}`,
+      folder: `e-commerce/${folderName}`,
       width: 500,
       height: 500,
       crop: "fill",

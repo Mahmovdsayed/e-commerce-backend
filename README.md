@@ -33,12 +33,12 @@ http://localhost:3000
 
 ### 👤 User (`/user`)
 
-> Requires **Authentication** via `Authorization: Bearer <accessToken>`
+> Requires **Authentication** via `accessToken: Bearer_<accessToken>`
 
 | # | Endpoint | Method | Body | Description |
 |---|----------|--------|------|-------------|
 | 1 | `/user/getUser/:id` | **GET** | - | Get user info by ID |
-| 2 | `/user/updateUser/:id` | **PUT** | `{ "name": "Mahmoud Updated", "avatar": "https://example.com/avatar.png" }` | Update user profile |
+| 2 | `/user/updateUser/:id` | **PUT** | `{ "name": "Mahmoud Updated", "email": "mah@example.com" }` | Update user profile |
 | 3 | `/user/change-password` | **POST** | `{ "oldPassword": "12345678", "newPassword": "newPass123" }` | Change user password |
 
 ---

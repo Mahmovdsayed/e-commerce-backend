@@ -7,7 +7,7 @@ import { updateUserHandler } from "../../controllers/user/updateUserInfo.user.js
 import {
   changePasswordValidationSchema,
   updatedUserValidationSchema,
-} from "../../validation/auth.validation.js";
+} from "../../validation/auth/auth.validation.js";
 import { changePasswordHandler } from "../../controllers/user/changePassword.user.js";
 
 const router = Router();

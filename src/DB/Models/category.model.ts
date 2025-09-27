@@ -9,17 +9,28 @@ export interface ICategory extends Document {
   isActive: boolean;
   metaTitle?: string;
   metaDescription?: string;
+  products: Types.ObjectId[];
+  addedBy: Types.ObjectId;
 }
 
 const CategorySchema = new Schema<ICategory>(
   {
     name: { type: String, required: true, unique: true },
     description: { type: String, default: "" },
-    slug: { type: String, required: true, unique: true , lowercase: true, trim: true },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      index: true,
+    },
     isActive: { type: Boolean, default: true },
     metaTitle: { type: String, default: "" },
     metaDescription: { type: String, default: "" },
     image: imageSchema,
+    products: [{ type: Schema.Types.ObjectId, ref: "Product", index: true }],
+    addedBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   {
     timestamps: true,

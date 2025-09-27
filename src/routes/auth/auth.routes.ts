@@ -9,7 +9,7 @@ import {
   signInValidationSchema,
   signUpValidationSchema,
   verifyEmailValidationSchema,
-} from "../../validation/auth.validation.js";
+} from "../../validation/auth/auth.validation.js";
 import { signInHandler } from "../../controllers/auth/signIn.auth.js";
 import { refreshTokenHandler } from "../../controllers/auth/refreshToken.auth.js";
 import { signOutHandler } from "../../controllers/auth/signOut.auth.js";
