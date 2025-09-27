@@ -17,187 +17,29 @@ http://localhost:3000
 
 ### 🔑 Authentication (`/auth`)
 
-#### 1. **Sign Up**
-
-```http
-POST /auth/signup
-```
-
-**Body:**
-
-```json
-{
-  "name": "Mahmoud",
-  "email": "mah@example.com",
-  "password": "12345678"
-}
-```
-
----
-
-#### 2. **Sign In**
-
-```http
-POST /auth/signin
-```
-
-**Body:**
-
-```json
-{
-  "email": "mah@example.com",
-  "password": "12345678"
-}
-```
-
----
-
-#### 3. **Google Sign In / Sign Up**
-
-```http
-POST /auth/google
-```
-
-**Body:**
-
-```json
-{
-  "credential": "GOOGLE_ID_TOKEN"
-}
-```
-
----
-
-#### 4. **Refresh Access Token**
-
-```http
-POST /auth/refresh-token
-```
-
-- Uses **HttpOnly refreshToken cookie** to issue a new access token.
-
----
-
-#### 5. **Logout**
-
-```http
-POST /auth/logout
-```
-
-- Clears `refreshToken` cookie and DB reference.
-
----
-
-#### 6. **Verify Email (OTP)**
-
-```http
-POST /auth/verify-email
-```
-
-**Body:**
-
-```json
-{
-  "email": "mah@example.com",
-  "otp": "123456"
-}
-```
-
----
-
-#### 7. **Request New OTP**
-
-```http
-POST /auth/resend-verification-email
-```
-
-**Body:**
-
-```json
-{
-  "email": "mah@example.com"
-}
-```
-
----
-
-#### 8. **Forgot Password**
-
-```http
-POST /auth/forgot-password
-```
-
-**Body:**
-
-```json
-{
-  "email": "mah@example.com"
-}
-```
-
----
-
-#### 9. **Reset Password**
-
-```http
-POST /auth/reset-password
-```
-
-**Body:**
-
-```json
-{
-  "email": "mah@example.com",
-  "newPassword": "newPass123",
-  "token": "RESET_PASSWORD_TOKEN"
-}
-```
+| # | Endpoint | Method | Body | Description |
+|---|----------|--------|------|-------------|
+| 1 | `/auth/signup` | **POST** | `{ "name": "Mahmoud", "email": "mah@example.com", "password": "12345678" }` | Register new user |
+| 2 | `/auth/signin` | **POST** | `{ "email": "mah@example.com", "password": "12345678" }` | Sign in with email & password |
+| 3 | `/auth/google` | **POST** | `{ "credential": "GOOGLE_ID_TOKEN" }` | Google OAuth sign in / sign up |
+| 4 | `/auth/refresh-token` | **POST** | - | Refresh access token using **HttpOnly cookie** |
+| 5 | `/auth/logout` | **POST** | - | Logout and clear refresh token |
+| 6 | `/auth/verify-email` | **POST** | `{ "email": "mah@example.com", "otp": "123456" }` | Verify email with OTP |
+| 7 | `/auth/resend-verification-email` | **POST** | `{ "email": "mah@example.com" }` | Request new OTP |
+| 8 | `/auth/forgot-password` | **POST** | `{ "email": "mah@example.com" }` | Request password reset link |
+| 9 | `/auth/reset-password` | **POST** | `{ "email": "mah@example.com", "newPassword": "newPass123", "token": "RESET_PASSWORD_TOKEN" }` | Reset password using token |
 
 ---
 
 ### 👤 User (`/user`)
 
-> Requires **Authentication** via `accessToken: Bearer_<accessToken>`
+> Requires **Authentication** via `Authorization: Bearer <accessToken>`
 
-#### 1. **Get User Info**
-
-```http
-GET /user/getUser/:id
-```
-
----
-
-#### 2. **Update User Info**
-
-```http
-PUT /user/updateUser/:id
-```
-
-**Body:**
-
-```json
-{
-  "name": "Mahmoud Updated",
-  "avatar": "https://example.com/avatar.png"
-}
-```
-
----
-
-#### 3. **Change Password**
-
-```http
-POST /user/change-password
-```
-
-**Body:**
-
-```json
-{
-  "oldPassword": "12345678",
-  "newPassword": "newPass123"
-}
-```
+| # | Endpoint | Method | Body | Description |
+|---|----------|--------|------|-------------|
+| 1 | `/user/getUser/:id` | **GET** | - | Get user info by ID |
+| 2 | `/user/updateUser/:id` | **PUT** | `{ "name": "Mahmoud Updated", "avatar": "https://example.com/avatar.png" }` | Update user profile |
+| 3 | `/user/change-password` | **POST** | `{ "oldPassword": "12345678", "newPassword": "newPass123" }` | Change user password |
 
 ---
 
