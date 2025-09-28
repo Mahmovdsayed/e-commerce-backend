@@ -14,7 +14,7 @@ export interface IProduct extends Document {
   metaDescription: string;
   categoryId: Types.ObjectId;
   slug: string;
-  reviews: Types.ObjectId[];
+  reviews: any;
   addedBy: Types.ObjectId;
   hasCoupon: boolean;
   couponId?: Types.ObjectId;
@@ -45,6 +45,8 @@ export interface IProduct extends Document {
     height: number;
   };
   materials: string[];
+  rating: number;
+  numReviews: number;
 }
 
 const ProductSchema = new Schema<IProduct>(
@@ -73,6 +75,8 @@ const ProductSchema = new Schema<IProduct>(
     hasCoupon: { type: Boolean, default: false },
     couponId: { type: Schema.Types.ObjectId, ref: "Coupon" },
     tags: [{ type: String }],
+    rating: { type: Number, default: 0 },
+    numReviews: { type: Number, default: 0 },
     dimensions: {
       length: { type: Number },
       width: { type: Number },
@@ -125,7 +129,7 @@ const ProductSchema = new Schema<IProduct>(
         value: { type: String, required: true },
       },
     ],
-  },  
+  },
   { timestamps: true }
 );
 
