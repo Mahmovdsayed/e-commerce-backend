@@ -1,4 +1,5 @@
 import { Schema, model, Document, Types } from "mongoose";
+import imageSchema from "./image.model.js";
 
 export interface IProduct extends Document {
   name: string;
@@ -7,13 +8,43 @@ export interface IProduct extends Document {
   sku: string;
   stock: number;
   category: string;
-  images: string[];
+  images: [{ url: string; public_id: string }];
   isActive: boolean;
   metaTitle: string;
   metaDescription: string;
-  categoryId: Types.ObjectId;  
+  categoryId: Types.ObjectId;
   slug: string;
-
+  reviews: Types.ObjectId[];
+  addedBy: Types.ObjectId;
+  hasCoupon: boolean;
+  couponId?: Types.ObjectId;
+  purchase_limit: number;
+  options: {
+    name: string;
+    values: string[];
+  }[];
+  attributes: {
+    name: string;
+    value: string;
+  }[];
+  colors: {
+    name: string;
+    hex: string;
+  }[];
+  sizes: {
+    name: string;
+    value: string;
+  }[];
+  tags: string[];
+  warranty: string;
+  condition: string;
+  shipping: string;
+  dimensions: {
+    length: number;
+    width: number;
+    height: number;
+  };
+  materials: string[];
 }
 
 const ProductSchema = new Schema<IProduct>(
@@ -21,16 +52,80 @@ const ProductSchema = new Schema<IProduct>(
     name: { type: String, required: true },
     description: { type: String },
     price: { type: Number, required: true },
-    sku: { type: String, required: true, unique: true , uppercase: true, trim: true },
+    sku: {
+      type: String,
+      required: true,
+      unique: true,
+      uppercase: true,
+      trim: true,
+    },
     stock: { type: Number, default: 0 },
     category: { type: String },
-    images: [String],
+    images: [imageSchema],
     isActive: { type: Boolean, default: true },
     metaTitle: { type: String },
     metaDescription: { type: String },
-    slug: { type: String, required: true, unique: true , lowercase: true, trim: true },
-    categoryId: { type: Schema.Types.ObjectId, ref: "Category", required: true },
-  },
+    purchase_limit: { type: Number, default: 0 },
+    warranty: { type: String },
+    condition: { type: String },
+    shipping: { type: String },
+    materials: [{ type: String }],
+    hasCoupon: { type: Boolean, default: false },
+    couponId: { type: Schema.Types.ObjectId, ref: "Coupon" },
+    tags: [{ type: String }],
+    dimensions: {
+      length: { type: Number },
+      width: { type: Number },
+      height: { type: Number },
+    },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    categoryId: {
+      type: Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
+    reviews: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Review",
+      },
+    ],
+    addedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    options: [
+      {
+        name: { type: String, required: true },
+        values: [{ type: String, required: true }],
+      },
+    ],
+    attributes: [
+      {
+        name: { type: String, required: true },
+        value: { type: String, required: true },
+      },
+    ],
+    colors: [
+      {
+        name: { type: String, required: true },
+        hex: { type: String, required: true },
+      },
+    ],
+    sizes: [
+      {
+        name: { type: String, required: true },
+        value: { type: String, required: true },
+      },
+    ],
+  },  
   { timestamps: true }
 );
 
