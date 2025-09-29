@@ -7,6 +7,7 @@ import { addReviewSchema } from "../../validation/review/reviews.validation.js";
 import { deleteReview } from "../../controllers/review/deleteReview.review.js";
 import { adminAuth } from "../../middlewares/admin.middleware.js";
 import { getAllReviews } from "../../controllers/review/getAllReviews.review.js";
+import { editReview } from "../../controllers/review/editReview.review.js";
 
 const router = Router();
 
@@ -19,5 +20,12 @@ router.post(
 
 router.delete("/delete/:id", auth(), expressAsyncHandler(deleteReview));
 router.get("/all", auth(), adminAuth(), expressAsyncHandler(getAllReviews));
+
+router.patch(
+  "/edit/:id",
+  auth(),
+  validationMiddleware({ body: addReviewSchema }),
+  expressAsyncHandler(editReview)
+);
 
 export default router;
