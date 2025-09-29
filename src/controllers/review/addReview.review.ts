@@ -44,7 +44,10 @@ export const addReview = async (
 
     const reviews = await reviewModel.find({ productId });
 
-    product.rating = reviews.length > 0 ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length : 0;
+    product.rating =
+      reviews.length > 0
+        ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
+        : 0;
     product.numReviews = reviews.length;
 
     await product.save();
