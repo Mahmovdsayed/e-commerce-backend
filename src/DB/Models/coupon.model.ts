@@ -9,6 +9,9 @@ export interface ICoupon extends Document {
   usedCount: number;
   minPurchaseAmount?: number;
   isActive: boolean;
+  products: Types.ObjectId[];
+  users: Types.ObjectId[];
+  addedBy: Types.ObjectId;
 }
 
 const CouponSchema = new Schema<ICoupon>(
@@ -25,8 +28,15 @@ const CouponSchema = new Schema<ICoupon>(
     usedCount: { type: Number, default: 0 },
     minPurchaseAmount: { type: Number, min: 0 },
     isActive: { type: Boolean, default: true },
+    products: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+    users: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    addedBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
 );
+
+CouponSchema.index({ code: 1 }, { unique: true });
+CouponSchema.index({ isActive: 1, expirationDate: 1 });
+CouponSchema.index({ expirationDate: 1 });
 
 export default model<ICoupon>("Coupon", CouponSchema);
