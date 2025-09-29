@@ -138,7 +138,7 @@ http://localhost:3000
 | 2 | `/message/response/:messageId` | **POST** | `{ "response": "Thanks for reaching out, we’ll help you shortly." }` | Send a response to a message (**admin only**) |
 | 3 | `/message/delete/:messageId` | **DELETE** | - | Delete a message by ID (**admin only**) |
 | 4 | `/message/all` | **GET** | - | Get all messages (**admin only**, supports pagination & filters) |
-| 5 | `/message/message/:messageId` | **GET** | - | Get single message details by ID (**admin only**) |
+| 5 | `/message/info/:messageId` | **GET** | - | Get single message details by ID (**admin only**) |
 
 ---
 

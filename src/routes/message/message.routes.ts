@@ -44,7 +44,7 @@ router.get(
 );
 
 router.get(
-  "/message/:messageId",
+  "/info/:messageId",
   auth(),
   adminAuth(),
   expressAsyncHandler(getMessageInfo)
