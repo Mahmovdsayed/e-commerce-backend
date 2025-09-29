@@ -16,7 +16,13 @@ export interface ICoupon extends Document {
 
 const CouponSchema = new Schema<ICoupon>(
   {
-    code: { type: String, required: true, unique: true, trim: true },
+    code: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      uppercase: true,
+    },
     discountType: {
       type: String,
       enum: ["percentage", "fixed"],

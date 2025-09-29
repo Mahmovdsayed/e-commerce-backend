@@ -21,3 +21,14 @@ export const addCouponSchema = z.object({
     .min(1, { message: "At least one product is required" }),
   isActive: z.boolean().default(true),
 });
+
+export const applyCouponSchema = z.object({
+  code: z
+    .string()
+    .min(3, { message: "Code is required and must be at least 3 characters" })
+    .max(20, { message: "Code must be less than 20 characters" }),
+  products: z
+    .array(z.string())
+    .min(1, { message: "At least one product is required" }),
+  totalAmount: z.number().min(0, { message: "Total amount must be positive" }),
+});

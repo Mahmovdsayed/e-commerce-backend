@@ -21,8 +21,9 @@ export const addCouponHandler = async (
     const authUser = (req as any).authUser;
     if (authUser.role !== "admin")
       return next(new AppError("Forbidden access", 403));
+    const normalizedCode = code.trim().toUpperCase();
 
-    const existingCoupon = await couponModel.findOne({ code });
+    const existingCoupon = await couponModel.findOne({ code: normalizedCode });
     if (existingCoupon) {
       return next(new AppError("Coupon with this code already exists", 409));
     }
@@ -56,7 +57,8 @@ export const addCouponHandler = async (
       discountType,
       discountValue,
       expirationDate,
-      usageLimit,
+      usageLimit: usageLimit ?? 1000,
+      usedCount: 0,
       minPurchaseAmount,
       products,
       addedBy: authUser._id,
