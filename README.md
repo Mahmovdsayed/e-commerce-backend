@@ -92,6 +92,33 @@ http://localhost:3000
   - `page` (default: 1)  
   - `limit` (default: 10)  
 
+---
+
+### 🎟️ Coupons (`/coupon`)
+
+> Requires **Authentication** via `accessToken: Bearer_<accessToken>`  
+> Only **admins** can `add`, `edit`, `delete`, or `getAll`.  
+> Users can **apply a coupon** during checkout.
+
+| # | Endpoint | Method | Body | Description |
+|---|----------|--------|------|-------------|
+| 1 | `/coupon/add` | **POST** | `{ "code": "SALE20", "discountType": "percentage", "discountValue": 20, "expirationDate": "2025-12-31", "usageLimit": 100, "minPurchaseAmount": 200, "isActive": true, "products": ["PRODUCT_ID"], "users": [] }` | Add a new coupon (**admin only**) |
+| 2 | `/coupon/apply` | **POST** | `{ "codes": ["SALE20", "NEW10"], "products": [{ "_id": "PRODUCT_ID", "price": 500 }], "totalAmount": 1000 }` | Apply one or multiple coupons on a cart (**user only**) |
+| 3 | `/coupon/delete/:couponId` | **DELETE** | - | Delete coupon by ID (**admin only**) |
+| 4 | `/coupon/edit/:couponId` | **PATCH** | `{ "code": "SALE50", "discountValue": 50 }` | Update coupon by ID (**admin only**) |
+| 5 | `/coupon/all` | **GET** | - | Get all coupons (**admin only**, supports pagination & filters) |
+
+---
+
+#### 📌 Notes
+- `discountType`: `"percentage"` or `"fixed"`.  
+- `discountValue`:  
+  - If `"percentage"` → must be **1–100**.  
+  - If `"fixed"` → numeric discount amount.  
+- `usageLimit`: Maximum number of times a coupon can be used.  
+- `minPurchaseAmount`: Minimum cart total required to apply coupon.  
+- `products`: Restrict coupon to specific product IDs (leave empty for all products).  
+- Multiple coupons can be applied in a single request → API will calculate discounts per coupon and return the **final amount**.  
 
 ## 🛠️ Tech Stack
 
