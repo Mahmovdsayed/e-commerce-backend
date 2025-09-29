@@ -119,6 +119,39 @@ http://localhost:3000
 - `minPurchaseAmount`: Minimum cart total required to apply coupon.  
 - `products`: Restrict coupon to specific product IDs (leave empty for all products).  
 - Multiple coupons can be applied in a single request → API will calculate discounts per coupon and return the **final amount**.  
+- Pagination params for `/coupon/all`:  
+  - `page` (default: 1)  
+  - `limit` (default: 10)  
+
+
+---
+
+### 📩 Messages (`/message`)
+
+> Users can send messages (like a contact form).  
+> Only **admins** can respond, view, or delete messages.  
+> Requires **Authentication** via `accessToken: Bearer_<accessToken>` for admin routes.
+
+| # | Endpoint | Method | Body | Description |
+|---|----------|--------|------|-------------|
+| 1 | `/message/send` | **POST** | `{ "name": "John Doe", "email": "john@example.com", "subject": "Support needed", "message": "I need help with my order." }` | Send a new message (public) |
+| 2 | `/message/response/:messageId` | **POST** | `{ "response": "Thanks for reaching out, we’ll help you shortly." }` | Send a response to a message (**admin only**) |
+| 3 | `/message/delete/:messageId` | **DELETE** | - | Delete a message by ID (**admin only**) |
+| 4 | `/message/all` | **GET** | - | Get all messages (**admin only**, supports pagination & filters) |
+| 5 | `/message/message/:messageId` | **GET** | - | Get single message details by ID (**admin only**) |
+
+---
+
+#### 📌 Notes
+- `status` field is used internally (`unread`, `read`, `responded`).
+- Users **cannot send another message** if they already have an `unread` one.
+- Pagination params for `/message/all`:  
+  - `page` (default: 1)  
+  - `limit` (default: 10)  
+
+---
+
+
 
 ## 🛠️ Tech Stack
 
