@@ -1,82 +1,109 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../../utils/AppError.js";
-import { isValidObjectId } from "mongoose";
 import couponModel from "../../DB/Models/coupon.model.js";
+import productModel from "../../DB/Models/product.model.js";
 import AuthRequest from "../../types/AuthRequest.types.js";
 
-export const applyCoupon = async (
+export const applyCoupons = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { code, products, totalAmount } = req.body;
-
+    const { codes, products, totalAmount } = req.body;
     const userId = (req as AuthRequest).authUser._id;
 
-    if (!code) return next(new AppError("Coupon code is required", 400));
+    if (!codes || !Array.isArray(codes) || codes.length === 0) {
+      return next(new AppError("At least one coupon code is required", 400));
+    }
+
+    if (!products || products.length === 0) {
+      return next(new AppError("No products provided", 400));
+    }
 
     const now = new Date();
 
-    const coupon = await couponModel.findOne({
-      code: code.trim().toUpperCase(),
-      isActive: true,
-      expirationDate: { $gt: now },
-      $expr: {
-        $lt: ["$usedCount", "$usageLimit"],
-      },
-      users: { $ne: userId },
-    });
+    const productIds = products.map((p: any) =>
+      typeof p === "string" ? p : p._id?.toString()
+    );
 
-    if (!coupon) {
-      return next(
-        new AppError("Invalid, expired, or already used coupon", 400)
-      );
+    const dbProducts = await productModel.find({ _id: { $in: productIds } });
+    if (dbProducts.length === 0) {
+      return next(new AppError("No valid products found in database", 400));
     }
 
-    if (coupon.minPurchaseAmount && totalAmount < coupon.minPurchaseAmount) {
-      return next(
-        new AppError(
-          `Minimum purchase of ${coupon.minPurchaseAmount} required`,
-          400
-        )
-      );
-    }
+    let totalDiscount = 0;
+    let appliedCoupons: any[] = [];
+    let finalAmount = totalAmount;
 
-    if (coupon.products.length > 0 && products?.length > 0) {
-      const productIds = products.map((p: any) =>
-        typeof p === "string" ? p : p._id?.toString()
-      );
+    for (const code of codes) {
+      const coupon = await couponModel.findOne({
+        code: code.trim().toUpperCase(),
+        isActive: true,
+        expirationDate: { $gt: now },
+        $expr: { $lt: ["$usedCount", "$usageLimit"] },
+        users: { $ne: userId },
+      });
 
-      const allowed = coupon.products.some((p) =>
-        productIds.includes(p.toString())
-      );
-
-      if (!allowed) {
-        return next(
-          new AppError("This coupon is not valid for selected products", 400)
-        );
+      if (!coupon) {
+        continue;
       }
+
+      if (coupon.minPurchaseAmount && totalAmount < coupon.minPurchaseAmount) {
+        continue;
+      }
+
+      let eligibleProducts = dbProducts;
+      if (coupon.products.length > 0) {
+        eligibleProducts = dbProducts.filter((p) =>
+          coupon.products.some((cp) => cp.toString() === cp._id.toString())
+        );
+        if (eligibleProducts.length === 0) {
+          continue;
+        }
+      }
+
+      const eligibleTotal = eligibleProducts.reduce(
+        (sum, p) => sum + (p.price || 0),
+        0
+      );
+
+      if (eligibleTotal === 0) continue;
+
+      let discount = 0;
+      if (coupon.discountType === "percentage") {
+        discount = (coupon.discountValue / 100) * eligibleTotal;
+      } else {
+        discount = coupon.discountValue;
+      }
+
+      totalDiscount += discount;
+      finalAmount = Math.max(finalAmount - discount, 0);
+
+      appliedCoupons.push({
+        coupon: coupon.code,
+        discount,
+        eligibleProducts: eligibleProducts.map((p) => ({
+          id: p._id,
+          name: p.name,
+          price: p.price,
+        })),
+      });
+
+      coupon.usedCount += 1;
+      coupon.users.push(userId as any);
+      await coupon.save();
     }
 
-    let discount = 0;
-    if (coupon.discountType === "percentage") {
-      discount = (coupon.discountValue / 100) * totalAmount;
-    } else {
-      discount = coupon.discountValue;
+    if (appliedCoupons.length === 0) {
+      return next(new AppError("No valid coupons could be applied", 400));
     }
-
-    const finalAmount = Math.max(totalAmount - discount, 0);
-
-    coupon.usedCount += 1;
-    coupon.users.push(userId as any);
-    await coupon.save();
 
     res.status(200).json({
       success: true,
-      message: "Coupon applied successfully",
-      coupon: coupon.code,
-      discount,
+      message: "Coupons applied successfully",
+      appliedCoupons,
+      totalDiscount,
       finalAmount,
     });
   } catch (error) {

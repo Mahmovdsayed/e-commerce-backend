@@ -23,10 +23,9 @@ export const addCouponSchema = z.object({
 });
 
 export const applyCouponSchema = z.object({
-  code: z
-    .string()
-    .min(3, { message: "Code is required and must be at least 3 characters" })
-    .max(20, { message: "Code must be less than 20 characters" }),
+  codes: z
+    .array(z.string())
+    .min(1, { message: "At least one coupon code is required" }),
   products: z
     .array(z.string())
     .min(1, { message: "At least one product is required" }),

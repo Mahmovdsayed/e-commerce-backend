@@ -8,7 +8,8 @@ import {
   addCouponSchema,
   applyCouponSchema,
 } from "../../validation/coupon/coupon.validation.js";
-import { applyCoupon } from "../../controllers/coupon/applyCoupon.coupon.js";
+import { applyCoupons } from "../../controllers/coupon/applyCoupon.coupon.js";
+import { deleteCouponHandler } from "../../controllers/coupon/deleteCoupon.coupon.js";
 
 const router = Router();
 
@@ -24,7 +25,14 @@ router.post(
   "/apply",
   auth(),
   validationMiddleware({ body: applyCouponSchema }),
-  expressAsyncHandler(applyCoupon)
+  expressAsyncHandler(applyCoupons)
+);
+
+router.delete(
+  "/delete/:couponId",
+  auth(),
+  adminAuth(),
+  expressAsyncHandler(deleteCouponHandler)
 );
 
 export default router;
