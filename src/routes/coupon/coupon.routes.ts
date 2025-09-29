@@ -10,6 +10,7 @@ import {
 } from "../../validation/coupon/coupon.validation.js";
 import { applyCoupons } from "../../controllers/coupon/applyCoupon.coupon.js";
 import { deleteCouponHandler } from "../../controllers/coupon/deleteCoupon.coupon.js";
+import { updateCouponHandler } from "../../controllers/coupon/updateCoupon.coupon.js";
 
 const router = Router();
 
@@ -33,6 +34,14 @@ router.delete(
   auth(),
   adminAuth(),
   expressAsyncHandler(deleteCouponHandler)
+);
+
+router.patch(
+  "/edit/:couponId",
+  auth(),
+  adminAuth(),
+  validationMiddleware({ body: addCouponSchema }),
+  expressAsyncHandler(updateCouponHandler)
 );
 
 export default router;
