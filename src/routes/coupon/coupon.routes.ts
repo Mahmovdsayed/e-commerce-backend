@@ -11,6 +11,7 @@ import {
 import { applyCoupons } from "../../controllers/coupon/applyCoupon.coupon.js";
 import { deleteCouponHandler } from "../../controllers/coupon/deleteCoupon.coupon.js";
 import { updateCouponHandler } from "../../controllers/coupon/updateCoupon.coupon.js";
+import { getAllCoupons } from "../../controllers/coupon/getAllCoupons.coupon.js";
 
 const router = Router();
 
@@ -43,5 +44,7 @@ router.patch(
   validationMiddleware({ body: addCouponSchema }),
   expressAsyncHandler(updateCouponHandler)
 );
+
+router.get("/all", auth(), adminAuth(), expressAsyncHandler(getAllCoupons));
 
 export default router;
