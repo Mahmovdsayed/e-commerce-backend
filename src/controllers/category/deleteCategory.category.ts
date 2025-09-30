@@ -4,6 +4,7 @@ import { isValidObjectId } from "mongoose";
 import AuthRequest from "../../types/AuthRequest.types.js";
 import categoryModel from "../../DB/Models/category.model.js";
 import { deleteImageFromCloudinary } from "../../helpers/uploadImageToCloudinary.js";
+import redis from "../../helpers/redis.js";
 
 export const deleteCategory = async (
   req: Request,
@@ -40,7 +41,8 @@ export const deleteCategory = async (
       }
     }
     await categoryModel.findByIdAndDelete(id);
-
+    await redis.del("categories:all");
+    await redis.del("category");
     res.status(200).json({
       success: true,
       message: "Category deleted successfully",

@@ -4,6 +4,7 @@ import reviewModel from "../../DB/Models/review.model.js";
 import { AppError } from "../../utils/AppError.js";
 import { isValidObjectId } from "mongoose";
 import productModel from "../../DB/Models/product.model.js";
+import redis from "../../helpers/redis.js";
 
 export const deleteReview = async (
   req: Request,
@@ -44,8 +45,8 @@ export const deleteReview = async (
     product.numReviews = reviews.length;
 
     await product.save();
-
     await reviewModel.findByIdAndDelete(id);
+    await redis.del("reviews:all");
     res.status(200).json({
       success: true,
       message: "Review deleted successfully",

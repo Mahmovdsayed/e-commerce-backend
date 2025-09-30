@@ -3,6 +3,7 @@ import { AppError } from "../../utils/AppError.js";
 import { isValidObjectId } from "mongoose";
 import reviewModel from "../../DB/Models/review.model.js";
 import productModel from "../../DB/Models/product.model.js";
+import redis from "../../helpers/redis.js";
 
 export const addReview = async (
   req: Request,
@@ -17,8 +18,10 @@ export const addReview = async (
     if (!productId) return next(new AppError("Product ID is required", 400));
     if (!isValidObjectId(productId))
       return next(new AppError("Invalid Product ID", 400));
+
     if (!rating || !comment)
       return next(new AppError("Rating and comment are required", 400));
+
     if (rating < 1 || rating > 5)
       return next(new AppError("Rating must be between 1 and 5", 400));
 
@@ -51,6 +54,7 @@ export const addReview = async (
     product.numReviews = reviews.length;
 
     await product.save();
+    await redis.del("reviews:all");
 
     res.status(201).json({
       success: true,

@@ -5,7 +5,7 @@ import categoryModel from "../../DB/Models/category.model.js";
 import { imageNotFoundURL } from "../../utils/statics.js";
 import { slugifyText } from "../../helpers/slugify.js";
 import AuthRequest from "../../types/AuthRequest.types.js";
-
+import redis from "../../helpers/redis.js";
 
 export const addCategoryHandler = async (
   req: Request,
@@ -56,7 +56,7 @@ export const addCategoryHandler = async (
       image: { url: imageUrl, public_id: publicId || null },
       addedBy: authUser._id,
     });
-
+    await redis.del("categories:all");
     res.status(201).json({
       success: true,
       message: "Category added successfully",

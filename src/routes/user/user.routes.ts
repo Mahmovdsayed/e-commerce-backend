@@ -9,10 +9,16 @@ import {
   updatedUserValidationSchema,
 } from "../../validation/auth/auth.validation.js";
 import { changePasswordHandler } from "../../controllers/user/changePassword.user.js";
+import { cacheMiddleware } from "../../middlewares/cache.middleware.js";
 
 const router = Router();
 
-router.get("/getUser/:id", auth(), expressAsyncHandler(getUserHandler));
+router.get(
+  "/getUser/:id",
+  auth(),
+  cacheMiddleware("user", 120),
+  expressAsyncHandler(getUserHandler)
+);
 router.put(
   "/updateUser/:id",
   auth(),

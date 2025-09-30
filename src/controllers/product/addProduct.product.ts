@@ -5,6 +5,7 @@ import AuthRequest from "../../types/AuthRequest.types.js";
 import { imageNotFoundURL } from "../../utils/statics.js";
 import { uploadImageToCloudinary } from "../../helpers/uploadImageToCloudinary.js";
 import categoryModel from "../../DB/Models/category.model.js";
+import redis from "../../helpers/redis.js";
 
 export const addProduct = async (
   req: Request,
@@ -105,6 +106,10 @@ export const addProduct = async (
     });
 
     await product.save();
+    category.products.push(product._id as any);
+    await category.save();
+
+    await redis.del("products:all");
 
     res.status(201).json({
       success: true,

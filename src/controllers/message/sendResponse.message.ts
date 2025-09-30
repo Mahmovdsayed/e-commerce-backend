@@ -4,6 +4,7 @@ import { isValidObjectId } from "mongoose";
 import messageModel from "../../DB/Models/message.model.js";
 import AuthRequest from "../../types/AuthRequest.types.js";
 import sendEmailService from "../../utils/email.js";
+import redis from "../../helpers/redis.js";
 
 export const sendMessaeResponse = async (
   req: Request,
@@ -34,11 +35,12 @@ export const sendMessaeResponse = async (
     message.response = response;
     await message.save();
 
+    await redis.del("messages:all");
+    await redis.del("message");
     res.status(200).json({
       success: true,
       message: "Message response sent successfully",
     });
-
     await sendEmailService({
       to: message.email,
       subject: `Thank you for contacting us`,

@@ -12,6 +12,7 @@ import { sendMessaeResponse } from "../../controllers/message/sendResponse.messa
 import { deleteMessage } from "../../controllers/message/deleteMessage.message.js";
 import { getAllMessagesHandler } from "../../controllers/message/getAllMessages.message.js";
 import { getMessageInfo } from "../../controllers/message/getMessageInfo.message.js";
+import { cacheMiddleware } from "../../middlewares/cache.middleware.js";
 
 const router = Router();
 
@@ -40,6 +41,7 @@ router.get(
   "/all",
   auth(),
   adminAuth(),
+  cacheMiddleware("messages:all", 120),
   expressAsyncHandler(getAllMessagesHandler)
 );
 
@@ -47,6 +49,7 @@ router.get(
   "/info/:messageId",
   auth(),
   adminAuth(),
+  cacheMiddleware("message", 120),
   expressAsyncHandler(getMessageInfo)
 );
 

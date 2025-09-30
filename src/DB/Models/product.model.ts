@@ -67,7 +67,6 @@ const ProductSchema = new Schema<IProduct>(
     shipping: String,
     slug: {
       type: String,
-
       unique: true,
       lowercase: true,
       trim: true,
@@ -88,7 +87,7 @@ const ProductSchema = new Schema<IProduct>(
 );
 
 ProductSchema.index({ categoryId: 1, price: 1, stock: 1, isActive: 1 });
-ProductSchema.index({ slug: 1 }, { unique: true });
+
 ProductSchema.index({ tags: 1 });
 ProductSchema.index({ createdAt: -1 });
 ProductSchema.index({ attributes: 1, options: 1 });

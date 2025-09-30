@@ -3,6 +3,7 @@ import { AppError } from "../../utils/AppError.js";
 import AuthRequest from "../../types/AuthRequest.types.js";
 import { isValidObjectId } from "mongoose";
 import couponModel from "../../DB/Models/coupon.model.js";
+import redis from "../../helpers/redis.js";
 
 export const updateCouponHandler = async (
   req: Request,
@@ -77,7 +78,7 @@ export const updateCouponHandler = async (
       },
       { new: true }
     );
-
+    await redis.del("coupons:all");
     res.status(200).json({
       success: true,
       message: "Coupon updated successfully",

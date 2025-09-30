@@ -8,6 +8,9 @@ import allowedExtensions from "../../utils/allowedExtensions.js";
 import { validationMiddleware } from "../../middlewares/validation.middleware.js";
 import { addProductSchema } from "../../validation/product/product.validation.js";
 import { updateProductHandler } from "../../controllers/product/updateProduct.product.js";
+import { getProductInfo } from "../../controllers/product/getProductInfo.product.js";
+import { cacheMiddleware } from "../../middlewares/cache.middleware.js";
+import { getAllProducts } from "../../controllers/product/getAllProducts.product.js";
 
 const router = Router();
 
@@ -24,10 +27,23 @@ router.post(
 
 router.patch(
   "/edit/:id",
+
   auth(),
   adminAuth(),
   validationMiddleware({ body: addProductSchema }),
   expressAsyncHandler(updateProductHandler)
+);
+
+router.get(
+  "/info/:id",
+  cacheMiddleware("product", 120),
+  expressAsyncHandler(getProductInfo)
+);
+
+router.get(
+  "/all",
+  cacheMiddleware("products:all", 120),
+  expressAsyncHandler(getAllProducts)
 );
 
 export default router;

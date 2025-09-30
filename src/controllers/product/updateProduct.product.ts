@@ -4,6 +4,7 @@ import { AppError } from "../../utils/AppError.js";
 import AuthRequest from "../../types/AuthRequest.types.js";
 import { isValidObjectId } from "mongoose";
 import categoryModel from "../../DB/Models/category.model.js";
+import redis from "../../helpers/redis.js";
 
 export const updateProductHandler = async (
   req: Request,
@@ -41,13 +42,16 @@ export const updateProductHandler = async (
       sizes,
     } = req.body;
 
-    const category = await categoryModel.findById(categoryId);
-    if (!category) return next(new AppError("Category not found", 404));
-
     if (!name || !price || !categoryId)
       return next(new AppError("Missing required fields", 400));
 
-    const existingProduct = await productModel.findOne({ name });
+    const category = await categoryModel.findById(categoryId);
+    if (!category) return next(new AppError("Category not found", 404));
+
+    const existingProduct = await productModel.findOne({
+      name,
+      _id: { $ne: id },
+    });
     if (existingProduct)
       return next(new AppError("Product with this name already exists", 409));
 
@@ -60,6 +64,18 @@ export const updateProductHandler = async (
       return next(
         new AppError("Purchase limit cannot be greater than stock", 400)
       );
+
+    if (categoryId !== category.id) {
+      const oldCategory = await categoryModel.findById(category.id);
+      if (oldCategory) {
+        oldCategory.products = oldCategory.products.filter(
+          (productId) => productId.toString() !== id
+        );
+        await oldCategory.save();
+      }
+      category.products.push(id as any);
+      await category.save();
+    }
 
     const product = await productModel.findByIdAndUpdate(
       id,
@@ -87,6 +103,8 @@ export const updateProductHandler = async (
     );
 
     if (!product) return next(new AppError("Product not found", 404));
+    await redis.del("products:all");
+    await redis.del("product");
 
     res.status(200).json({
       success: true,

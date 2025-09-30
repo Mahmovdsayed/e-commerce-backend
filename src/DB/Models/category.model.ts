@@ -26,7 +26,6 @@ const CategorySchema = new Schema<ICategory>(
       unique: true,
       lowercase: true,
       trim: true,
-      index: true,
     },
     isActive: { type: Boolean, default: true },
     metaTitle: { type: String, default: "" },

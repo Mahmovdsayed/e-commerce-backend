@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import messageModel from "../../DB/Models/message.model.js";
 import { AppError } from "../../utils/AppError.js";
 import sendEmailService from "../../utils/email.js";
+import redis from "../../helpers/redis.js";
 
 export const sendMessage = async (
   req: Request,
@@ -26,7 +27,7 @@ export const sendMessage = async (
       message,
       status: "unread",
     });
-
+    await redis.del("messages:all");
     res.status(200).json({
       success: true,
       message: "Message sent successfully , we will get back to you shortly",

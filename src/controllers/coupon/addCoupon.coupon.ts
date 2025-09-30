@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../../utils/AppError.js";
 import couponModel from "../../DB/Models/coupon.model.js";
+import redis from "../../helpers/redis.js";
 
 export const addCouponHandler = async (
   req: Request,
@@ -64,6 +65,7 @@ export const addCouponHandler = async (
       addedBy: authUser._id,
       isActive: true,
     });
+    await redis.del("coupons:all");
 
     res.status(201).json({
       success: true,

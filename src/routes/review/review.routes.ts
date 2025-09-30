@@ -8,6 +8,7 @@ import { deleteReview } from "../../controllers/review/deleteReview.review.js";
 import { adminAuth } from "../../middlewares/admin.middleware.js";
 import { getAllReviews } from "../../controllers/review/getAllReviews.review.js";
 import { editReview } from "../../controllers/review/editReview.review.js";
+import { cacheMiddleware } from "../../middlewares/cache.middleware.js";
 
 const router = Router();
 
@@ -19,7 +20,13 @@ router.post(
 );
 
 router.delete("/delete/:id", auth(), expressAsyncHandler(deleteReview));
-router.get("/all", auth(), adminAuth(), expressAsyncHandler(getAllReviews));
+router.get(
+  "/all",
+  auth(),
+  adminAuth(),
+  cacheMiddleware("reviews:all", 120),
+  expressAsyncHandler(getAllReviews)
+);
 
 router.patch(
   "/edit/:id",

@@ -5,6 +5,7 @@ import { isValidObjectId } from "mongoose";
 import categoryModel from "../../DB/Models/category.model.js";
 import { updateImageInCloudinary } from "../../helpers/uploadImageToCloudinary.js";
 import { slugifyText } from "../../helpers/slugify.js";
+import redis from "../../helpers/redis.js";
 
 export const updateCategory = async (
   req: Request,
@@ -68,7 +69,8 @@ export const updateCategory = async (
       },
       { new: true }
     );
-
+    await redis.del("categories:all");
+    await redis.del("category");
     res.status(200).json({
       status: "success",
       message: "Category updated successfully",

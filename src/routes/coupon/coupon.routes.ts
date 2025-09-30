@@ -12,6 +12,7 @@ import { applyCoupons } from "../../controllers/coupon/applyCoupon.coupon.js";
 import { deleteCouponHandler } from "../../controllers/coupon/deleteCoupon.coupon.js";
 import { updateCouponHandler } from "../../controllers/coupon/updateCoupon.coupon.js";
 import { getAllCoupons } from "../../controllers/coupon/getAllCoupons.coupon.js";
+import { cacheMiddleware } from "../../middlewares/cache.middleware.js";
 
 const router = Router();
 
@@ -45,6 +46,12 @@ router.patch(
   expressAsyncHandler(updateCouponHandler)
 );
 
-router.get("/all", auth(), adminAuth(), expressAsyncHandler(getAllCoupons));
+router.get(
+  "/all",
+  auth(),
+  adminAuth(),
+  cacheMiddleware("coupons:all", 120),
+  expressAsyncHandler(getAllCoupons)
+);
 
 export default router;

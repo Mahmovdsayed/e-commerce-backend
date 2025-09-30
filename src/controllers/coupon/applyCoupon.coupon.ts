@@ -3,6 +3,7 @@ import { AppError } from "../../utils/AppError.js";
 import couponModel from "../../DB/Models/coupon.model.js";
 import productModel from "../../DB/Models/product.model.js";
 import AuthRequest from "../../types/AuthRequest.types.js";
+import redis from "../../helpers/redis.js";
 
 export const applyCoupons = async (
   req: Request,
@@ -98,6 +99,7 @@ export const applyCoupons = async (
     if (appliedCoupons.length === 0) {
       return next(new AppError("No valid coupons could be applied", 400));
     }
+    await redis.del("coupons:all");
 
     res.status(200).json({
       success: true,

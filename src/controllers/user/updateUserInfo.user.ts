@@ -4,6 +4,7 @@ import { isValidObjectId } from "mongoose";
 import User from "../../DB/Models/user.model.js";
 import sendEmailService from "../../utils/email.js";
 import { generateOTP } from "../../helpers/generateOTP.js";
+import redis from "../../helpers/redis.js";
 
 export const updateUserHandler = async (
   req: Request,
@@ -91,7 +92,7 @@ export const updateUserHandler = async (
         message: `Your email has been changed. Please verify your new email address. Your OTP is ${updateData.otp}. It will expire in 10 minutes.`,
       }).catch((err) => console.error("Email send failed:", err));
     }
-
+    await redis.del("user");
     res.status(200).json({
       success: true,
       message: sendVerification

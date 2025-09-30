@@ -3,6 +3,7 @@ import { AppError } from "../../utils/AppError.js";
 import { isValidObjectId } from "mongoose";
 import AuthRequest from "../../types/AuthRequest.types.js";
 import messageModel from "../../DB/Models/message.model.js";
+import redis from "../../helpers/redis.js";
 
 export const deleteMessage = async (
   req: Request,
@@ -23,6 +24,9 @@ export const deleteMessage = async (
     if (!message) return next(new AppError("Message not found", 404));
 
     await messageModel.findByIdAndDelete(messageId);
+
+    await redis.del("messages:all");
+    await redis.del("message");
 
     res.status(200).json({
       success: true,

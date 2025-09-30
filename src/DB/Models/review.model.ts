@@ -19,4 +19,7 @@ const ReviewSchema = new Schema<IReview>(
   { timestamps: true }
 );
 
+ReviewSchema.index({ productId: 1, userId: 1 }, { unique: true });
+
+
 export default model<IReview>("Review", ReviewSchema);
