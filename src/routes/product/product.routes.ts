@@ -11,6 +11,7 @@ import { updateProductHandler } from "../../controllers/product/updateProduct.pr
 import { getProductInfo } from "../../controllers/product/getProductInfo.product.js";
 import { cacheMiddleware } from "../../middlewares/cache.middleware.js";
 import { getAllProducts } from "../../controllers/product/getAllProducts.product.js";
+import { deleteProductHandler } from "../../controllers/product/deleteProduct.product.js";
 
 const router = Router();
 
@@ -27,7 +28,6 @@ router.post(
 
 router.patch(
   "/edit/:id",
-
   auth(),
   adminAuth(),
   validationMiddleware({ body: addProductSchema }),
@@ -44,6 +44,13 @@ router.get(
   "/all",
   cacheMiddleware("products:all", 120),
   expressAsyncHandler(getAllProducts)
+);
+
+router.delete(
+  "/delete/:id",
+  auth(),
+  adminAuth(),
+  expressAsyncHandler(deleteProductHandler)
 );
 
 export default router;
