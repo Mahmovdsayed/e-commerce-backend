@@ -32,4 +32,37 @@ const CartSchema = new Schema<ICart>(
   { timestamps: true }
 );
 
+CartSchema.index({ userId: 1 });
+CartSchema.index({ createdAt: -1 });
+
+CartSchema.pre("save", async function (next) {
+  if (this.isModified("items")) {
+    let total = 0;
+    for (const item of this.items) {
+      const product = await model("Product").findById(item.productId);
+      if (product) {
+        total += product.price * item.quantity;
+      }
+    }
+    this.totalAmount = total;
+  }
+  next();
+});
+
+CartSchema.pre("findOneAndUpdate", async function (next) {
+  const update = this.getUpdate() as any;
+  if (update && update.items) {
+    let total = 0;
+    for (const item of update.items) {
+      const product = await model("Product").findById(item.productId);
+      if (product) {
+        total += product.price * item.quantity;
+      }
+    }
+    update.totalAmount = total;
+    this.setUpdate(update);
+  }
+  next();
+});
+
 export default model<ICart>("Cart", CartSchema);

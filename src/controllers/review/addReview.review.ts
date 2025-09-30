@@ -40,7 +40,7 @@ export const addReview = async (
       comment,
     });
 
-    product.reviews.push(review._id);
+    product.reviews.push(review._id as any);
 
     const reviews = await reviewModel.find({ productId });
 

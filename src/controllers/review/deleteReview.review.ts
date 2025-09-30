@@ -13,8 +13,9 @@ export const deleteReview = async (
   try {
     const { id } = req.params;
     if (!id) return next(new AppError("Review ID is required", 400));
-    if (!isValidObjectId(id)) return next(new AppError("Invalid Review ID", 400));
-    
+    if (!isValidObjectId(id))
+      return next(new AppError("Invalid Review ID", 400));
+
     const authUser = (req as AuthRequest).authUser;
 
     const review = await reviewModel.findById(id);
@@ -30,9 +31,9 @@ export const deleteReview = async (
 
     const product = await productModel.findById(review.productId);
     if (!product) return next(new AppError("Product not found", 404));
-    
+
     product.reviews = product.reviews.filter(
-      (reviewId: string) => reviewId.toString() !== id.toString()
+      (reviewId: any) => reviewId.toString() !== id.toString()
     );
 
     const reviews = await reviewModel.find({ productId: product._id });

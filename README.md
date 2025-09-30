@@ -1,7 +1,7 @@
 # 📦 E-Commerce API
 
 An **e-commerce REST API** built with **Node.js, Express, TypeScript, and MongoDB**.  
-Supports **user authentication, authorization, Google OAuth, email verification, password reset, and user profile management**.
+Supports **user authentication, authorization, Google OAuth, email verification, password reset, and user profile management** , **product and category management, coupon system, and customer messaging**
 
 ---
 

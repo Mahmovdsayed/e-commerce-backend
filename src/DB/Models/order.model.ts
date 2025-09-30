@@ -61,4 +61,7 @@ const OrderSchema = new Schema<IOrder>(
   { timestamps: true }
 );
 
+OrderSchema.index({ userId: 1 });
+OrderSchema.index({ createdAt: -1 });
+
 export default model<IOrder>("Order", OrderSchema);
