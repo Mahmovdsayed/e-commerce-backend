@@ -9,6 +9,7 @@ import { SeoSchema } from "./subSchemas/seo.schema.js";
 import { slugifyText } from "../../helpers/slugify.js";
 
 export interface IProduct extends Document {
+  _id: string;
   name: string;
   description: string;
   price: number;

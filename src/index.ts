@@ -10,6 +10,7 @@ import reviewRouter from "./routes/review/review.routes.js";
 import couponRouter from "./routes/coupon/coupon.routes.js";
 import messageRouter from "./routes/message/message.routes.js";
 import productRouter from "./routes/product/product.routes.js";
+import cartRouter from "./routes/cart/cart.routes.js";
 import { globalResponse } from "./middlewares/globalResponse.js";
 import cookieParser from "cookie-parser";
 
@@ -31,6 +32,9 @@ app.use("/review", reviewRouter);
 app.use("/coupon", couponRouter);
 app.use("/message", messageRouter);
 app.use("/product", productRouter);
+app.use("/cart", cartRouter);
+// app.use("/order", orderRouter);
+// app.use("/payment", paymentRouter);
 
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
   try {

@@ -17,6 +17,7 @@ export const addCouponHandler = async (
       usageLimit,
       minPurchaseAmount,
       products,
+      type,
     } = req.body;
 
     const authUser = (req as any).authUser;
@@ -64,6 +65,7 @@ export const addCouponHandler = async (
       products,
       addedBy: authUser._id,
       isActive: true,
+      type: type || "product",
     });
     await redis.del("coupons:all");
 

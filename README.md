@@ -1,15 +1,3 @@
-# 📦 E-Commerce API
-
-An **e-commerce REST API** built with **Node.js, Express, TypeScript, and MongoDB**.  
-Supports **user authentication, authorization, Google OAuth, email verification, password reset, and user profile management** , **product and category management, coupon system, and customer messaging**
-
----
-
-## 🚀 Base URL
-
-```
-http://localhost:3000
-```
 
 ---
 
@@ -59,18 +47,6 @@ http://localhost:3000
 
 ---
 
-#### 📌 Notes
-
-- `rating` must be between **1–5**.
-- Pagination params:
-  - `page` (default: 1)
-  - `limit` (default: 10)
-- Filters supported in `/reviews/all`:
-  - `productId` → get reviews of a specific product
-  - `rating` → filter reviews by rating
-
----
-
 ### 🏷️ Categories (`/category`)
 
 > Requires **Authentication** via `accessToken: Bearer_<accessToken>`  
@@ -84,15 +60,6 @@ http://localhost:3000
 | 3   | `/category/:id`        | **GET**    | -                                                                          | Get single category by ID (public)                        |
 | 4   | `/category/edit/:id`   | **PATCH**  | `{ "name": "Updated Name", "description": "Updated Desc", "image": file }` | Update category by ID (**admin only**)                    |
 | 5   | `/category/delete/:id` | **DELETE** | -                                                                          | Delete category by ID (**admin only**)                    |
-
----
-
-#### 📌 Notes
-
-- `image` must be uploaded as **multipart/form-data**.
-- Pagination params for `/category/all`:
-  - `page` (default: 1)
-  - `limit` (default: 10)
 
 ---
 
@@ -112,27 +79,7 @@ http://localhost:3000
 
 ---
 
-#### 📌 Notes
-
-- `discountType`: `"percentage"` or `"fixed"`.
-- `discountValue`:
-  - If `"percentage"` → must be **1–100**.
-  - If `"fixed"` → numeric discount amount.
-- `usageLimit`: Maximum number of times a coupon can be used.
-- `minPurchaseAmount`: Minimum cart total required to apply coupon.
-- `products`: Restrict coupon to specific product IDs (leave empty for all products).
-- Multiple coupons can be applied in a single request → API will calculate discounts per coupon and return the **final amount**.
-- Pagination params for `/coupon/all`:
-  - `page` (default: 1)
-  - `limit` (default: 10)
-
----
-
 ### 📩 Messages (`/message`)
-
-> Users can send messages (like a contact form).  
-> Only **admins** can respond, view, or delete messages.  
-> Requires **Authentication** via `accessToken: Bearer_<accessToken>` for admin routes.
 
 | #   | Endpoint                       | Method     | Body                                                                                                                        | Description                                                      |
 | --- | ------------------------------ | ---------- | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
@@ -144,25 +91,7 @@ http://localhost:3000
 
 ---
 
-#### 📌 Notes
-
-- `status` field is used internally (`unread`, `read`, `responded`).
-- Users **cannot send another message** if they already have an `unread` one.
-- Pagination params for `/message/all`:
-  - `page` (default: 1)
-  - `limit` (default: 10)
-
----
-
-# 🛒 Products (`/product`)
-
-Requires **Authentication** via `accessToken: Bearer_<accessToken>` for protected routes.  
-Only **admins** can add, edit, or delete products.  
-`getAll` and `getProductInfo` are **public**.
-
----
-
-## Endpoints
+### 🛒 Products (`/product`)
 
 | #   | Endpoint                                                                                           | Method | Body                                                                                                                                         | Description                                                                              |
 | --- | -------------------------------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -174,23 +103,23 @@ Only **admins** can add, edit, or delete products.
 
 ---
 
-## 📌 Notes
+### 🛍️ Cart (`/cart`)
 
-- **Image** must be uploaded as `multipart/form-data` when adding products.
+> Requires **Authentication** via `accessToken: Bearer_<accessToken>`  
+> Each user can only have **one cart**.
 
-### Pagination params for `/product/all`
+| #   | Endpoint             | Method   | Body                               | Description                                  |
+| --- | -------------------- | -------- | ---------------------------------- | -------------------------------------------- |
+| 1   | `/cart/add`          | **POST** | `{ "productId": "PID", "quantity": 2 }` | Add product to cart (or update quantity)      |
+| 2   | `/cart/get`          | **GET**  | -                                  | Get user’s cart with all items                |
+| 3   | `/cart/update`       | **PUT**  | `{ "productId": "PID", "quantity": 5 }` | Update quantity of a cart item                |
+| 4   | `/cart/remove/:id`   | **DELETE** | -                                 | Remove a single product from cart             |
+| 5   | `/cart/clear`        | **DELETE** | -                                 | Clear all items from the cart                 |
 
-- `page` (default: `1`)
-- `limit` (default: `10`)
-
-### Filters supported
-
-- `name`, `categoryId`, `minPrice`, `maxPrice`, `minStock`, `maxStock`, `isActive`, `tags`, `search`
-
-### Sorting supported
-
-- `sortBy` (e.g., `price`, `stock`, `createdAt`)
-- `sortOrder` (`asc` or `desc`)
+#### 📌 Notes
+- `totalAmount` is automatically recalculated based on product prices.
+- Adding the same product again will **update its quantity**.
+- Cart data is **cached** for faster retrieval.
 
 ---
 
@@ -202,6 +131,7 @@ Only **admins** can add, edit, or delete products.
 - **JWT Authentication (Access + Refresh Tokens)**
 - **Google OAuth 2.0**
 - **OTP Email Verification (Nodemailer)**
+- **Redis (caching)**
 
 ---
 
