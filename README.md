@@ -89,6 +89,22 @@ Supports **user authentication, authorization, Google OAuth, email verification,
 
 ---
 
+#### 📌 Notes
+
+- `discountType`: `"percentage"` or `"fixed"`.
+- `discountValue`:
+  - If `"percentage"` → must be **1–100**.
+  - If `"fixed"` → numeric discount amount.
+- `usageLimit`: Maximum number of times a coupon can be used.
+- `minPurchaseAmount`: Minimum cart total required to apply coupon.
+- `products`: Restrict coupon to specific product IDs (leave empty for all products).
+- Multiple coupons can be applied in a single request → API will calculate discounts per coupon and return the **final amount**.
+- Pagination params for `/coupon/all`:
+  - `page` (default: 1)
+  - `limit` (default: 10)
+
+---
+
 ### 📩 Messages (`/message`)
 
 | #   | Endpoint                       | Method     | Body                                                                                                                        | Description                                                      |
@@ -101,6 +117,16 @@ Supports **user authentication, authorization, Google OAuth, email verification,
 
 ---
 
+#### 📌 Notes
+
+- `status` field is used internally (`unread`, `read`, `responded`).
+- Users **cannot send another message** if they already have an `unread` one.
+- Pagination params for `/message/all`:
+  - `page` (default: 1)
+  - `limit` (default: 10)
+
+---
+
 ### 🛒 Products (`/product`)
 
 | #   | Endpoint                                                                                           | Method | Body                                                                                                                                         | Description                                                                              |
@@ -110,6 +136,26 @@ Supports **user authentication, authorization, Google OAuth, email verification,
 | 3   | `/product/delete/:id`                                                                              | DELETE | -                                                                                                                                            | Delete product by ID (**admin only**)                                                    |
 | 4   | `/product/info/:id`                                                                                | GET    | -                                                                                                                                            | Get single product info by ID (**public**)                                               |
 | 5   | `/product/all?page=1&limit=10&search=laptop&minPrice=500&maxPrice=2000&sortBy=price&sortOrder=asc` | GET    | -                                                                                                                                            | Get all products (**public**, supports pagination, filtering, sorting, search, and tags) |
+
+---
+
+#### 📌 Notes
+
+- **Image** must be uploaded as `multipart/form-data` when adding products.
+
+### Pagination params for `/product/all`
+
+- `page` (default: `1`)
+- `limit` (default: `10`)
+
+### Filters supported
+
+- `name`, `categoryId`, `minPrice`, `maxPrice`, `minStock`, `maxStock`, `isActive`, `tags`, `search`
+
+### Sorting supported
+
+- `sortBy` (e.g., `price`, `stock`, `createdAt`)
+- `sortOrder` (`asc` or `desc`)
 
 ---
 
