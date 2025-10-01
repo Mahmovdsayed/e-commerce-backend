@@ -1,3 +1,13 @@
+# 📦 E-Commerce API
+
+An **e-commerce REST API** built with **Node.js, Express, TypeScript, and MongoDB**.  
+Supports **user authentication, authorization, Google OAuth, email verification, password reset, and user profile management**, **product and category management, coupon system, customer messaging, reviews, and shopping cart**.
+
+---
+
+## 🚀 Base URL
+
+### http://localhost:3000
 
 ---
 
@@ -108,15 +118,16 @@
 > Requires **Authentication** via `accessToken: Bearer_<accessToken>`  
 > Each user can only have **one cart**.
 
-| #   | Endpoint             | Method   | Body                               | Description                                  |
-| --- | -------------------- | -------- | ---------------------------------- | -------------------------------------------- |
-| 1   | `/cart/add`          | **POST** | `{ "productId": "PID", "quantity": 2 }` | Add product to cart (or update quantity)      |
-| 2   | `/cart/get`          | **GET**  | -                                  | Get user’s cart with all items                |
-| 3   | `/cart/update`       | **PUT**  | `{ "productId": "PID", "quantity": 5 }` | Update quantity of a cart item                |
-| 4   | `/cart/remove/:id`   | **DELETE** | -                                 | Remove a single product from cart             |
-| 5   | `/cart/clear`        | **DELETE** | -                                 | Clear all items from the cart                 |
+| #   | Endpoint           | Method     | Body                                    | Description                              |
+| --- | ------------------ | ---------- | --------------------------------------- | ---------------------------------------- |
+| 1   | `/cart/add`        | **POST**   | `{ "productId": "PID", "quantity": 2 }` | Add product to cart (or update quantity) |
+| 2   | `/cart/get`        | **GET**    | -                                       | Get user’s cart with all items           |
+| 3   | `/cart/update`     | **PUT**    | `{ "productId": "PID", "quantity": 5 }` | Update quantity of a cart item           |
+| 4   | `/cart/remove/:id` | **DELETE** | -                                       | Remove a single product from cart        |
+| 5   | `/cart/clear`      | **DELETE** | -                                       | Clear all items from the cart            |
 
 #### 📌 Notes
+
 - `totalAmount` is automatically recalculated based on product prices.
 - Adding the same product again will **update its quantity**.
 - Cart data is **cached** for faster retrieval.
