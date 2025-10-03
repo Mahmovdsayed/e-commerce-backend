@@ -22,9 +22,9 @@ router.post(
 router.delete("/delete/:id", auth(), expressAsyncHandler(deleteReview));
 router.get(
   "/all",
+  cacheMiddleware("reviews:all", 120),
   auth(),
   adminAuth(),
-  cacheMiddleware("reviews:all", 120),
   expressAsyncHandler(getAllReviews)
 );
 

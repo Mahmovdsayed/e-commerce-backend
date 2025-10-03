@@ -21,7 +21,7 @@ router.post(
 
 router.get(
   "/get",
-  cacheMiddleware("cart"),
+  cacheMiddleware("cart", 120),
   auth(),
   expressAsyncHandler(getCart)
 );

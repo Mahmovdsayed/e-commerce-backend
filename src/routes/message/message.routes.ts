@@ -39,17 +39,17 @@ router.delete(
 
 router.get(
   "/all",
+  cacheMiddleware("messages:all", 120),
   auth(),
   adminAuth(),
-  cacheMiddleware("messages:all", 120),
   expressAsyncHandler(getAllMessagesHandler)
 );
 
 router.get(
   "/info/:messageId",
+  cacheMiddleware("message", 120),
   auth(),
   adminAuth(),
-  cacheMiddleware("message", 120),
   expressAsyncHandler(getMessageInfo)
 );
 

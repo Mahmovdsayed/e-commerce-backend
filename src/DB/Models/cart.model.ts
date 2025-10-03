@@ -2,11 +2,17 @@ import { Schema, model, Document, Types } from "mongoose";
 
 export interface ICart extends Document {
   userId: Types.ObjectId;
-  items: {
+  cartItems: {
     productId: Types.ObjectId;
     quantity: number;
+    price: number;
   }[];
-  totalAmount: number;
+  totalPrice: number;
+  totalPriceAfterDiscount: number;
+  discount: number;
+  appliedDiscountCode?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const CartSchema = new Schema<ICart>(
@@ -17,7 +23,7 @@ const CartSchema = new Schema<ICart>(
       required: true,
       unique: true,
     },
-    items: [
+    cartItems: [
       {
         productId: {
           type: Schema.Types.ObjectId,
@@ -25,44 +31,18 @@ const CartSchema = new Schema<ICart>(
           required: true,
         },
         quantity: { type: Number, required: true, min: 1, default: 1 },
+        price: { type: Number, required: true },
       },
     ],
-    totalAmount: { type: Number, required: true, default: 0 },
+    totalPrice: { type: Number, default: 0 },
+    appliedDiscountCode: { type: String, default: null },
+    discount: { type: Number, default: 0 },
+    totalPriceAfterDiscount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
 CartSchema.index({ userId: 1 });
 CartSchema.index({ createdAt: -1 });
-
-CartSchema.pre("save", async function (next) {
-  if (this.isModified("items")) {
-    let total = 0;
-    for (const item of this.items) {
-      const product = await model("Product").findById(item.productId);
-      if (product) {
-        total += product.price * item.quantity;
-      }
-    }
-    this.totalAmount = total;
-  }
-  next();
-});
-
-CartSchema.pre("findOneAndUpdate", async function (next) {
-  const update = this.getUpdate() as any;
-  if (update && update.items) {
-    let total = 0;
-    for (const item of update.items) {
-      const product = await model("Product").findById(item.productId);
-      if (product) {
-        total += product.price * item.quantity;
-      }
-    }
-    update.totalAmount = total;
-    this.setUpdate(update);
-  }
-  next();
-});
 
 export default model<ICart>("Cart", CartSchema);

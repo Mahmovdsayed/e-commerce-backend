@@ -15,8 +15,8 @@ const router = Router();
 
 router.get(
   "/getUser/:id",
-  auth(),
   cacheMiddleware("user", 120),
+  auth(),
   expressAsyncHandler(getUserHandler)
 );
 router.put(
