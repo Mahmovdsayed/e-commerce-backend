@@ -9,12 +9,6 @@ export const getAllReviews = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const authUser = (req as AuthRequest).authUser;
-    if (authUser.role !== "admin")
-      return next(
-        new AppError("You are not authorized to view all reviews", 401)
-      );
-
     const { productId, rating } = req.query;
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;

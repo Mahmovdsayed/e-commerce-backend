@@ -13,6 +13,7 @@ export interface IProduct extends Document {
   name: string;
   description: string;
   price: number;
+  sold: number;
   sku: string;
   stock: number;
   categoryId: Types.ObjectId;
@@ -49,6 +50,7 @@ const ProductSchema = new Schema<IProduct>(
     name: { type: String, required: true },
     description: String,
     price: { type: Number, required: true },
+    sold: { type: Number, default: 0 },
     sku: {
       type: String,
       unique: true,
@@ -88,7 +90,6 @@ const ProductSchema = new Schema<IProduct>(
 );
 
 ProductSchema.index({ categoryId: 1, price: 1, stock: 1, isActive: 1 });
-
 ProductSchema.index({ tags: 1 });
 ProductSchema.index({ createdAt: -1 });
 ProductSchema.index({ attributes: 1, options: 1 });

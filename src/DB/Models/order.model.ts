@@ -19,6 +19,7 @@ export interface IOrder extends Document {
     phone: string;
   };
   shippingStatus: "pending" | "in_transit" | "delivered";
+  paymentType: "cash" | "card";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -45,6 +46,11 @@ const OrderSchema = new Schema<IOrder>(
       default: "unpaid",
     },
     paymentId: { type: String },
+    paymentType: {
+      type: String,
+      enum: ["cash", "card"],
+      default: "cash",
+    },
     shippingAddress: {
       street: String,
       city: String,

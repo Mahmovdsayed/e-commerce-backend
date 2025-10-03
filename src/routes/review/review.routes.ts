@@ -19,7 +19,12 @@ router.post(
   expressAsyncHandler(addReview)
 );
 
-router.delete("/delete/:id", auth(), expressAsyncHandler(deleteReview));
+router.delete(
+  "/delete/:id",
+  auth(),
+  adminAuth(),
+  expressAsyncHandler(deleteReview)
+);
 router.get(
   "/all",
   cacheMiddleware("reviews:all", 120),

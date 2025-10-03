@@ -16,10 +16,6 @@ export const deleteMessage = async (
     if (!isValidObjectId(messageId))
       return next(new AppError("Invalid message ID", 400));
 
-    const authUser = (req as AuthRequest).authUser;
-    if (authUser.role !== "admin")
-      return next(new AppError("Forbidden access", 403));
-
     const message = await messageModel.findById(messageId);
     if (!message) return next(new AppError("Message not found", 404));
 

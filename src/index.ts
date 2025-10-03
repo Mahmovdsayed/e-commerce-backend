@@ -11,6 +11,8 @@ import messageRouter from "./routes/message/message.routes.js";
 import productRouter from "./routes/product/product.routes.js";
 import cartRouter from "./routes/cart/cart.routes.js";
 import discountRouter from "./routes/discount/discount.routes.js";
+import orderRouter from "./routes/order/order.routes.js";
+import paymentRouter from "./routes/payment/payment.routes.js";
 
 import { globalResponse } from "./middlewares/globalResponse.js";
 import cookieParser from "cookie-parser";
@@ -52,8 +54,8 @@ app.use("/message", messageRouter);
 app.use("/product", productRouter);
 app.use("/discount", discountRouter);
 app.use("/cart", cartRouter);
-// app.use("/order", orderRouter);
-// app.use("/payment", paymentRouter);
+app.use("/order", orderRouter);
+app.use("/payment", paymentRouter);
 
 app.get(
   "/",
@@ -61,6 +63,7 @@ app.get(
   (req: Request, res: Response, next: NextFunction) => {
     try {
       res.json({
+        success: true,
         projectName: "E-Commerce API",
         version: "1.0.0",
         description:

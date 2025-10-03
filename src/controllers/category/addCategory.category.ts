@@ -15,10 +15,6 @@ export const addCategoryHandler = async (
   try {
     const authUser = (req as AuthRequest).authUser;
 
-    if (authUser.role !== "admin") {
-      return next(new AppError("Forbidden access", 403));
-    }
-
     const { name, description, metaTitle, metaDescription } = req.body;
     const image = req.file;
     if (!name) throw new AppError("Name is required", 400);

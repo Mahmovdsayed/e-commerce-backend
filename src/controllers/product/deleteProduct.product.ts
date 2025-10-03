@@ -19,10 +19,6 @@ export const deleteProductHandler = async (
     if (!isValidObjectId(id))
       return next(new AppError("Invalid Product ID", 400));
 
-    const authUser = (req as AuthRequest).authUser;
-    if (authUser.role !== "admin")
-      return next(new AppError("Forbidden access", 403));
-
     const product = await productModel.findById(id);
     if (!product) return next(new AppError("Product not found", 404));
 

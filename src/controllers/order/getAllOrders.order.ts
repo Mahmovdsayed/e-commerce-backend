@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import AuthRequest from "../../types/AuthRequest.types.js";
+import orderModel from "../../DB/Models/order.model.js";
 import { AppError } from "../../utils/AppError.js";
-import messageModel from "../../DB/Models/message.model.js";
 
-export const getAllMessagesHandler = async (
+export const getAllOrders = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -11,26 +10,30 @@ export const getAllMessagesHandler = async (
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-
-    const total_results = await messageModel.countDocuments();
-    const total_pages = Math.ceil(total_results / limit);
-
     const skip = (page - 1) * limit;
-    const messages = await messageModel
+
+    const orders = await orderModel
       .find()
-      .select("name subject status")
+      .populate("userId", "userName email name")
+      .populate("items.productId", "name price images")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
+    if (!orders || orders.length === 0)
+      return next(new AppError("No orders found", 404));
+    
+    const total_results = await orderModel.countDocuments();
+    const total_pages = Math.ceil(total_results / limit);
+
     res.status(200).json({
       success: true,
-      message: "Messages fetched successfully",
+      message: "Orders fetched successfully",
       page,
       limit,
       total_pages,
       total_results,
-      results: messages,
+      results: orders,
     });
   } catch (error) {
     next(error);

@@ -15,7 +15,12 @@ const PaymentSchema = new Schema<IPayment>(
   {
     orderId: { type: Schema.Types.ObjectId, ref: "Order", required: true },
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    provider: { type: String, enum: ["stripe", "paymob"], required: true },
+    provider: {
+      type: String,
+      enum: ["stripe"],
+      default: "stripe",
+      required: true,
+    },
     transactionId: { type: String, required: true },
     amount: { type: Number, required: true },
     currency: { type: String, default: "USD" },

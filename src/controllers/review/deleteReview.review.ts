@@ -17,18 +17,8 @@ export const deleteReview = async (
     if (!isValidObjectId(id))
       return next(new AppError("Invalid Review ID", 400));
 
-    const authUser = (req as AuthRequest).authUser;
-
     const review = await reviewModel.findById(id);
     if (!review) return next(new AppError("Review not found", 404));
-
-    if (
-      review.userId.toString() !== authUser._id.toString() ||
-      authUser.role !== "admin"
-    )
-      return next(
-        new AppError("You are not authorized to delete this review", 401)
-      );
 
     const product = await productModel.findById(review.productId);
     if (!product) return next(new AppError("Product not found", 404));

@@ -17,10 +17,6 @@ export const updateProductHandler = async (
     if (!isValidObjectId(id))
       return next(new AppError("Invalid Product ID", 400));
 
-    const authUser = (req as AuthRequest).authUser;
-    if (authUser.role !== "admin")
-      return next(new AppError("Forbidden access", 403));
-
     const {
       name,
       description,

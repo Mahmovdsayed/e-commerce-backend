@@ -40,6 +40,8 @@ export const applyDiscountHandler = async (
     cart.discount = discountAmount;
     cart.totalPriceAfterDiscount = Math.max(cart.totalPrice - discountAmount, 0);
     cart.appliedDiscountCode = discount.code;
+    cart.totalPrice = cart.totalPriceAfterDiscount;
+
 
     await cart.save();
     await redis.del(`cart`);

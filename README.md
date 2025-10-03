@@ -73,38 +73,6 @@ Supports **user authentication, authorization, Google OAuth, email verification,
 
 ---
 
-### 🎟️ Coupons (`/coupon`)
-
-> Requires **Authentication** via `accessToken: Bearer_<accessToken>`  
-> Only **admins** can `add`, `edit`, `delete`, or `getAll`.  
-> Users can **apply a coupon** during checkout.
-
-| #   | Endpoint                   | Method     | Body                                                                                                                                                                                                              | Description                                                     |
-| --- | -------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| 1   | `/coupon/add`              | **POST**   | `{ "code": "SALE20", "discountType": "percentage", "discountValue": 20, "expirationDate": "2025-12-31", "usageLimit": 100, "minPurchaseAmount": 200, "isActive": true, "products": ["PRODUCT_ID"], "users": [] }` | Add a new coupon (**admin only**)                               |
-| 2   | `/coupon/apply`            | **POST**   | `{ "codes": ["SALE20", "NEW10"], "products": [{ "_id": "PRODUCT_ID", "price": 500 }], "totalAmount": 1000 }`                                                                                                      | Apply one or multiple coupons on a cart (**user only**)         |
-| 3   | `/coupon/delete/:couponId` | **DELETE** | -                                                                                                                                                                                                                 | Delete coupon by ID (**admin only**)                            |
-| 4   | `/coupon/edit/:couponId`   | **PATCH**  | `{ "code": "SALE50", "discountValue": 50 }`                                                                                                                                                                       | Update coupon by ID (**admin only**)                            |
-| 5   | `/coupon/all`              | **GET**    | -                                                                                                                                                                                                                 | Get all coupons (**admin only**, supports pagination & filters) |
-
----
-
-#### 📌 Notes
-
-- `discountType`: `"percentage"` or `"fixed"`.
-- `discountValue`:
-  - If `"percentage"` → must be **1–100**.
-  - If `"fixed"` → numeric discount amount.
-- `usageLimit`: Maximum number of times a coupon can be used.
-- `minPurchaseAmount`: Minimum cart total required to apply coupon.
-- `products`: Restrict coupon to specific product IDs (leave empty for all products).
-- Multiple coupons can be applied in a single request → API will calculate discounts per coupon and return the **final amount**.
-- Pagination params for `/coupon/all`:
-  - `page` (default: 1)
-  - `limit` (default: 10)
-
----
-
 ### 📩 Messages (`/message`)
 
 | #   | Endpoint                       | Method     | Body                                                                                                                        | Description                                                      |
@@ -161,24 +129,55 @@ Supports **user authentication, authorization, Google OAuth, email verification,
 
 ### 🛍️ Cart (`/cart`)
 
-> Requires **Authentication** via `accessToken: Bearer_<accessToken>`  
+> Requires **Authentication** via `accessToken: Bearer_<accessToken>`
 > Each user can only have **one cart**.
 
-| #   | Endpoint           | Method     | Body                                    | Description                              |
-| --- | ------------------ | ---------- | --------------------------------------- | ---------------------------------------- |
-| 1   | `/cart/add`        | **POST**   | `{ "productId": "PID", "quantity": 2 }` | Add product to cart (or update quantity) |
-| 2   | `/cart/get`        | **GET**    | -                                       | Get user’s cart with all items           |
-| 3   | `/cart/update`     | **PUT**    | `{ "productId": "PID", "quantity": 5 }` | Update quantity of a cart item           |
-| 4   | `/cart/remove/:id` | **DELETE** | -                                       | Remove a single product from cart        |
-| 5   | `/cart/clear`      | **DELETE** | -                                       | Clear all items from the cart            |
+| # | Endpoint                | Method     | Body                                    | Description                              |
+| - | ----------------------- | ---------- | --------------------------------------- | ---------------------------------------- |
+| 1 | `/cart/add`             | **POST**   | `{ "productId": "PID", "quantity": 2 }` | Add product to cart (or update quantity) |
+| 2 | `/cart/get`             | **GET**    | -                                       | Get user’s cart with all items           |
+| 3 | `/cart/update`          | **PUT**    | `{ "productId": "PID", "quantity": 5 }` | Update quantity of a cart item           |
+| 4 | `/cart/remove/:id`      | **DELETE** | -                                       | Remove a single product from cart        |
+| 5 | `/cart/clear`           | **DELETE** | -                                       | Clear all items from the cart            |
+| 6 | `/cart/apply-discount`  | **POST**   | `{ "code": "SALE20" }`                  | Apply discount code to the cart          |
+| 7 | `/cart/remove-discount` | **DELETE** | -                                       | Remove applied discount from the cart    |
 
 #### 📌 Notes
 
-- `totalAmount` is automatically recalculated based on product prices.
-- Adding the same product again will **update its quantity**.
-- Cart data is **cached** for faster retrieval.
+* `totalPrice` and `totalPriceAfterDiscount` are automatically recalculated.
+* Adding the same product again will **update its quantity**.
+* Cart data is **cached in Redis** for faster retrieval.
+* Only one discount code can be active at a time.
 
 ---
+
+### 🎟️ Discounts (`/discount`)
+
+> Requires **Authentication** via `accessToken: Bearer_<accessToken>`
+> Only **admins** can manage discounts.
+> Users can only **apply discount codes** through `/cart/apply-discount`.
+
+| # | Endpoint               | Method     | Body                                                                                                                      | Description                            |
+| - | ---------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| 1 | `/discount/add`        | **POST**   | `{ "code": "SALE20", "discountType": "percentage", "discountValue": 20, "minCartValue": 100, "expiresAt": "2025-12-31" }` | Add a new discount (**admin only**)    |
+| 2 | `/discount/all`        | **GET**    | -                                                                                                                         | Get all discounts (**admin only**)     |
+| 3 | `/discount/:id`        | **GET**    | -                                                                                                                         | Get single discount by ID              |
+| 4 | `/discount/edit/:id`   | **PATCH**  | `{ "discountValue": 50, "isActive": true }`                                                                               | Update discount by ID (**admin only**) |
+| 5 | `/discount/delete/:id` | **DELETE** | -                                                                                                                         | Delete discount by ID (**admin only**) |
+
+#### 📌 Notes
+
+* `discountType`: `"percentage"` or `"fixed"`.
+* `discountValue`:
+
+  * If `"percentage"` → must be between **1–100**.
+  * If `"fixed"` → is a numeric discount amount.
+* `minCartValue`: Minimum cart total required to apply discount.
+* `expiresAt`: Expiration date of the discount code.
+* `isActive`: Toggle to enable/disable the discount.
+
+---
+
 
 ## 🛠️ Tech Stack
 

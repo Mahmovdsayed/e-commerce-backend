@@ -10,6 +10,7 @@ import {
 } from "../../validation/auth/auth.validation.js";
 import { changePasswordHandler } from "../../controllers/user/changePassword.user.js";
 import { cacheMiddleware } from "../../middlewares/cache.middleware.js";
+import { getAllUserOrders } from "../../controllers/order/getAllUserOrders.order.js";
 
 const router = Router();
 
@@ -34,5 +35,7 @@ router.post(
   }),
   expressAsyncHandler(changePasswordHandler)
 );
+
+router.get("/orders", auth(), expressAsyncHandler(getAllUserOrders));
 
 export default router;

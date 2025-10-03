@@ -18,10 +18,6 @@ export const updateCategory = async (
     if (!isValidObjectId(id))
       return next(new AppError("Invalid category id", 400));
 
-    const authUser = (req as AuthRequest).authUser;
-    if (authUser.role !== "admin")
-      return next(new AppError("Forbidden access", 403));
-
     const { name, description, metaTitle, metaDescription, slug } = req.body;
     const image = req.file;
 
