@@ -43,6 +43,14 @@ export interface IProduct extends Document {
   updatedAt: Date;
   numReviews: number;
   rating: number;
+  ai: {
+    description?: string;
+    seo?: {
+      keywords: string[];
+      metaTitle: string;
+      metaDescription: string;
+    };
+  };
 }
 
 const ProductSchema = new Schema<IProduct>(
@@ -85,6 +93,14 @@ const ProductSchema = new Schema<IProduct>(
     attributes: [AttributeSchema],
     colors: [ColorSchema],
     sizes: [SizeSchema],
+    ai: {
+      description: String,
+      seo: {
+        keywords: [String],
+        metaTitle: String,
+        metaDescription: String,
+      },
+    },
   },
   { timestamps: true }
 );
@@ -133,5 +149,6 @@ ProductSchema.pre("findOneAndUpdate", function (next) {
   }
   next();
 });
+
 
 export default model<IProduct>("Product", ProductSchema);

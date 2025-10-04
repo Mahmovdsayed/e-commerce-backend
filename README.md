@@ -132,22 +132,22 @@ Supports **user authentication, authorization, Google OAuth, email verification,
 > Requires **Authentication** via `accessToken: Bearer_<accessToken>`
 > Each user can only have **one cart**.
 
-| # | Endpoint                | Method     | Body                                    | Description                              |
-| - | ----------------------- | ---------- | --------------------------------------- | ---------------------------------------- |
-| 1 | `/cart/add`             | **POST**   | `{ "productId": "PID", "quantity": 2 }` | Add product to cart (or update quantity) |
-| 2 | `/cart/get`             | **GET**    | -                                       | Get user’s cart with all items           |
-| 3 | `/cart/update`          | **PUT**    | `{ "productId": "PID", "quantity": 5 }` | Update quantity of a cart item           |
-| 4 | `/cart/remove/:id`      | **DELETE** | -                                       | Remove a single product from cart        |
-| 5 | `/cart/clear`           | **DELETE** | -                                       | Clear all items from the cart            |
-| 6 | `/cart/apply-discount`  | **POST**   | `{ "code": "SALE20" }`                  | Apply discount code to the cart          |
-| 7 | `/cart/remove-discount` | **DELETE** | -                                       | Remove applied discount from the cart    |
+| #   | Endpoint                | Method     | Body                                    | Description                              |
+| --- | ----------------------- | ---------- | --------------------------------------- | ---------------------------------------- |
+| 1   | `/cart/add`             | **POST**   | `{ "productId": "PID", "quantity": 2 }` | Add product to cart (or update quantity) |
+| 2   | `/cart/get`             | **GET**    | -                                       | Get user’s cart with all items           |
+| 3   | `/cart/update`          | **PUT**    | `{ "productId": "PID", "quantity": 5 }` | Update quantity of a cart item           |
+| 4   | `/cart/remove/:id`      | **DELETE** | -                                       | Remove a single product from cart        |
+| 5   | `/cart/clear`           | **DELETE** | -                                       | Clear all items from the cart            |
+| 6   | `/cart/apply-discount`  | **POST**   | `{ "code": "SALE20" }`                  | Apply discount code to the cart          |
+| 7   | `/cart/remove-discount` | **DELETE** | -                                       | Remove applied discount from the cart    |
 
 #### 📌 Notes
 
-* `totalPrice` and `totalPriceAfterDiscount` are automatically recalculated.
-* Adding the same product again will **update its quantity**.
-* Cart data is **cached in Redis** for faster retrieval.
-* Only one discount code can be active at a time.
+- `totalPrice` and `totalPriceAfterDiscount` are automatically recalculated.
+- Adding the same product again will **update its quantity**.
+- Cart data is **cached in Redis** for faster retrieval.
+- Only one discount code can be active at a time.
 
 ---
 
@@ -157,27 +157,84 @@ Supports **user authentication, authorization, Google OAuth, email verification,
 > Only **admins** can manage discounts.
 > Users can only **apply discount codes** through `/cart/apply-discount`.
 
-| # | Endpoint               | Method     | Body                                                                                                                      | Description                            |
-| - | ---------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| 1 | `/discount/add`        | **POST**   | `{ "code": "SALE20", "discountType": "percentage", "discountValue": 20, "minCartValue": 100, "expiresAt": "2025-12-31" }` | Add a new discount (**admin only**)    |
-| 2 | `/discount/all`        | **GET**    | -                                                                                                                         | Get all discounts (**admin only**)     |
-| 3 | `/discount/:id`        | **GET**    | -                                                                                                                         | Get single discount by ID              |
-| 4 | `/discount/edit/:id`   | **PATCH**  | `{ "discountValue": 50, "isActive": true }`                                                                               | Update discount by ID (**admin only**) |
-| 5 | `/discount/delete/:id` | **DELETE** | -                                                                                                                         | Delete discount by ID (**admin only**) |
+| #   | Endpoint               | Method     | Body                                                                                                                      | Description                            |
+| --- | ---------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| 1   | `/discount/add`        | **POST**   | `{ "code": "SALE20", "discountType": "percentage", "discountValue": 20, "minCartValue": 100, "expiresAt": "2025-12-31" }` | Add a new discount (**admin only**)    |
+| 2   | `/discount/all`        | **GET**    | -                                                                                                                         | Get all discounts (**admin only**)     |
+| 3   | `/discount/:id`        | **GET**    | -                                                                                                                         | Get single discount by ID              |
+| 4   | `/discount/edit/:id`   | **PATCH**  | `{ "discountValue": 50, "isActive": true }`                                                                               | Update discount by ID (**admin only**) |
+| 5   | `/discount/delete/:id` | **DELETE** | -                                                                                                                         | Delete discount by ID (**admin only**) |
 
 #### 📌 Notes
 
-* `discountType`: `"percentage"` or `"fixed"`.
-* `discountValue`:
+- `discountType`: `"percentage"` or `"fixed"`.
+- `discountValue`:
 
-  * If `"percentage"` → must be between **1–100**.
-  * If `"fixed"` → is a numeric discount amount.
-* `minCartValue`: Minimum cart total required to apply discount.
-* `expiresAt`: Expiration date of the discount code.
-* `isActive`: Toggle to enable/disable the discount.
+  - If `"percentage"` → must be between **1–100**.
+  - If `"fixed"` → is a numeric discount amount.
+
+- `minCartValue`: Minimum cart total required to apply discount.
+- `expiresAt`: Expiration date of the discount code.
+- `isActive`: Toggle to enable/disable the discount.
 
 ---
 
+### 📦 Orders (`/order`)
+
+> Requires **Authentication** via `accessToken: Bearer_<accessToken>`  
+> Users can create orders, Admins can view all orders.
+
+| #   | Endpoint                  | Method   | Body                                                             | Description                           |
+| --- | ------------------------- | -------- | ---------------------------------------------------------------- | ------------------------------------- |
+| 1   | `/order/cash/:cartId`     | **POST** | `{ "shippingAddress": "Cairo, Egypt", "phone": "+20123456789" }` | Create a new **cash order**           |
+| 2   | `/order/checkout/:cartId` | **POST** | `{ "shippingAddress": "Cairo, Egypt", "phone": "+20123456789" }` | Create a **Stripe checkout session**  |
+| 3   | `/order/confirm`          | **GET**  | -                                                                | Confirm order after Stripe payment    |
+| 4   | `/order/all`              | **GET**  | -                                                                | Get all orders (**admin only**)       |
+| 5   | `/user/orders`            | **GET**  | -                                                                | Get all orders for the logged-in user |
+
+---
+
+### 💳 Payments (`/payment`)
+
+> Requires **Authentication** via `accessToken: Bearer_<accessToken>`  
+> Only **admins** can refund payments.
+
+| #   | Endpoint                     | Method   | Body | Description                       |
+| --- | ---------------------------- | -------- | ---- | --------------------------------- |
+| 1   | `/payment/user/:userId`      | **GET**  | -    | Get all payments for a user       |
+| 2   | `/payment/:paymentId`        | **GET**  | -    | Get payment details by ID         |
+| 3   | `/payment/refund/:paymentId` | **POST** | -    | Refund a payment (**admin only**) |
+
+---
+
+#### 📌 Notes
+
+- **Cash Orders** → Created instantly and marked as “paid on delivery”.
+- **Checkout Orders** → Redirects to Stripe Checkout, and after successful payment the user is redirected to `/order/confirm`.
+- **Payments** → Stored in the database and linked to orders.
+- Users can view their own payments, and Admins can issue refunds.
+
+---
+
+### 🤖 AI Tools (`/ai`)
+
+> Requires **Authentication** via `accessToken: Bearer_<accessToken>`  
+> Only **admins** can use these endpoints.  
+> These routes leverage **AI** to automatically generate product descriptions, SEO metadata, and marketing strategies.
+
+| #   | Endpoint                              | Method   | Body                                                                                                                                | Description                                                                                                                |
+| --- | ------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `/ai/generate-description/:productId` | **POST** | -                                                                                                                                   | Generate a persuasive **product description** (100–150 words, professional marketing tone) for a given product.            |
+| 2   | `/ai/generate-seo/:productId`         | **POST** | -                                                                                                                                   | Generate **SEO metadata** including `keywords`, `metaTitle`, and `metaDescription` tailored for the product.               |
+| 3   | `/ai/generate-marketing-plan`         | **POST** | `{ "productName": "Smartwatch", "audience": "Young professionals", "tone": "Friendly", "platform": "Instagram", "gender": "male" }` | Create a **marketing strategy plan** (not ads). Suggests target audience, tone, content ideas, posting schedule, and tips. |
+
+#### 🧾 Notes
+
+- **`/ai/generate-description/:productId`** → Quickly creates **engaging product descriptions** in a professional marketing tone (100–150 words).  
+- **`/ai/generate-seo/:productId`** → Generates **SEO-friendly metadata** (keywords, meta title, meta description) to improve product visibility.  
+- **`/ai/generate-marketing-plan`** → Builds a **step-by-step marketing strategy** (target audience, tone, posting schedule, and tips), but **does not generate the actual ads**.  
+
+---
 
 ## 🛠️ Tech Stack
 

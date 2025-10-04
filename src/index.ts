@@ -13,6 +13,7 @@ import cartRouter from "./routes/cart/cart.routes.js";
 import discountRouter from "./routes/discount/discount.routes.js";
 import orderRouter from "./routes/order/order.routes.js";
 import paymentRouter from "./routes/payment/payment.routes.js";
+import aiRouter from "./routes/ai/ai.routes.js";
 
 import { globalResponse } from "./middlewares/globalResponse.js";
 import cookieParser from "cookie-parser";
@@ -38,7 +39,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
-  morgan("dev", {
+  morgan("combined", {
     stream: {
       write: (message) => console.log("Morgan: " + message.trim()),
     },
@@ -56,6 +57,7 @@ app.use("/discount", discountRouter);
 app.use("/cart", cartRouter);
 app.use("/order", orderRouter);
 app.use("/payment", paymentRouter);
+app.use("/ai", aiRouter);
 
 app.get(
   "/",

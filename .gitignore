@@ -67,6 +67,7 @@ out/
 *.exe
 *.out
 *.app
+*.VSCodeCounter
 
 # Project-specific ignores (from your structure)
 src/**/*.js
