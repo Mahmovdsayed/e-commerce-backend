@@ -1,7 +1,11 @@
 # 📦 E-Commerce API
 
-An **e-commerce REST API** built with **Node.js, Express, TypeScript, and MongoDB**.  
-Supports **user authentication, authorization, Google OAuth, email verification, password reset, and user profile management**, **product and category management, coupon system, customer messaging, reviews, and shopping cart**.
+An **AI-powered e-commerce REST API** built with **Node.js, Express, TypeScript, and MongoDB**.  
+It provides a **complete backend solution** for modern online stores with **user authentication, product & category management, cart, orders, discounts, payments, and analytics**.
+
+The system integrates **AI tools** for generating **product descriptions, SEO metadata, and marketing strategies**, helping merchants optimize their store and reach their audience more effectively.
+
+It also supports **online payments via Stripe**, **Google OAuth login**, **OTP-based email verification**, and **advanced analytics** for sales and products.
 
 ---
 
@@ -230,21 +234,71 @@ Supports **user authentication, authorization, Google OAuth, email verification,
 
 #### 🧾 Notes
 
-- **`/ai/generate-description/:productId`** → Quickly creates **engaging product descriptions** in a professional marketing tone (100–150 words).  
-- **`/ai/generate-seo/:productId`** → Generates **SEO-friendly metadata** (keywords, meta title, meta description) to improve product visibility.  
-- **`/ai/generate-marketing-plan`** → Builds a **step-by-step marketing strategy** (target audience, tone, posting schedule, and tips), but **does not generate the actual ads**.  
+- **`/ai/generate-description/:productId`** → Quickly creates **engaging product descriptions** in a professional marketing tone (100–150 words).
+- **`/ai/generate-seo/:productId`** → Generates **SEO-friendly metadata** (keywords, meta title, meta description) to improve product visibility.
+- **`/ai/generate-marketing-plan`** → Builds a **step-by-step marketing strategy** (target audience, tone, posting schedule, and tips), but **does not generate the actual ads**.
+
+---
+
+### 📊 Analysis (`/analysis`)
+
+> Requires **Authentication** via `accessToken: Bearer_<accessToken>`  
+> Only **admins** can access these routes.  
+> These endpoints provide **analytics** for orders, products, payments, and revenue.
+
+| #   | Endpoint                  | Method  | Query / Params     | Description                                                                 |
+| --- | ------------------------- | ------- | ------------------ | --------------------------------------------------------------------------- |
+| 1   | `/analysis/overview`      | **GET** | -                  | Get overall stats: total products, orders, revenue, and customers.          |
+| 2   | `/analysis/sales/monthly` | **GET** | `?year=2025`       | Get monthly sales revenue & order count for a given year.                   |
+| 3   | `/analysis/top-products`  | **GET** | `?limit=5`         | Get top-selling products sorted by sales (default limit = 5).               |
+| 6   | `/analysis/product/:id`   | **GET** | `:id` = Product ID | Get detailed analytics for a product (sales, revenue, avg rating, reviews). |
+
+---
+
+#### 📌 Notes
+
+- `overview` includes:
+  - `totalProducts`, `totalOrders`, `totalRevenue`, `totalCustomers`.
+- `sales/monthly` groups results by **month**.
+- `top-products` sorts products by `sold` field.
+- `product/:id` also returns **reviews count & average rating**.
+- All data excludes cancelled orders when calculating revenue.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Node.js + Express**
-- **TypeScript**
-- **MongoDB + Mongoose**
-- **JWT Authentication (Access + Refresh Tokens)**
-- **Google OAuth 2.0**
-- **OTP Email Verification (Nodemailer)**
-- **Redis (caching)**
+- **Backend Framework**: Node.js + Express
+- **Language**: TypeScript
+- **Database**: MongoDB (Mongoose ORM)
+- **Authentication**:
+  - JWT (Access + Refresh Tokens)
+  - Google OAuth 2.0
+  - OTP Email Verification (via Nodemailer)
+- **Payments**: Stripe API
+- **AI Integration**: Google Generative AI (`@google/generative-ai`) for product descriptions, SEO, and marketing plans
+- **Media Storage**: Cloudinary (Image upload & optimization) + Sharp (Image processing)
+- **Caching**: Redis (via ioredis) for sessions & cart performance
+- **File Uploads**: Multer
+- **Utilities**:
+  - bcrypt (password hashing)
+  - slugify (SEO-friendly URLs)
+  - nanoid (unique IDs)
+- **Logging & Security**: Morgan + CORS + Cookie-parser
+- **Validation**: Zod (schema validation)
+- **Dev Tools**: ts-node, nodemon, TypeScript
+
+---
+
+## 🚀 Key Features
+
+- Full **User System** (Auth, Roles, Profiles)
+- **Products & Categories** management with SEO support
+- **Shopping Cart** with discount handling
+- **Order & Payment Management** (Cash + Stripe Checkout)
+- **AI Tools** for marketing & SEO
+- **Analytics Dashboard** (sales, top products, revenue)
+- **Messaging System** for customer support
 
 ---
 

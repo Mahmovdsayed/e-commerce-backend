@@ -14,11 +14,18 @@ import discountRouter from "./routes/discount/discount.routes.js";
 import orderRouter from "./routes/order/order.routes.js";
 import paymentRouter from "./routes/payment/payment.routes.js";
 import aiRouter from "./routes/ai/ai.routes.js";
+import analyticsRouter from "./routes/analytics/analytics.routes.js";
 
 import { globalResponse } from "./middlewares/globalResponse.js";
 import cookieParser from "cookie-parser";
 import { cacheMiddleware } from "./middlewares/cache.middleware.js";
 import morgan from "morgan";
+
+// ✅ Rate Limiters
+import {
+  apiRateLimiter,
+  authRateLimiter,
+} from "./middlewares/authRateLimiter.middleware.js";
 
 config({ path: "./.env.local" });
 
@@ -46,6 +53,10 @@ app.use(
   })
 );
 
+// ✅ Apply rate limiters
+app.use("/auth", authRateLimiter); //login/signup
+app.use(apiRateLimiter); // Global limiter
+
 // ✅ Routes
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
@@ -58,6 +69,7 @@ app.use("/cart", cartRouter);
 app.use("/order", orderRouter);
 app.use("/payment", paymentRouter);
 app.use("/ai", aiRouter);
+app.use("/analytics", analyticsRouter);
 
 app.get(
   "/",
