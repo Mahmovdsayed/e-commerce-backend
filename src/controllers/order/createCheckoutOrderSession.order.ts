@@ -43,7 +43,7 @@ export const createCheckOutSession = async (
             name: "Cart Checkout",
             description: "All products in your cart with discount applied",
           },
-          unit_amount: totalAfterDiscount * 100,
+          unit_amount: totalAfterDiscount * 100, 
         },
         quantity: 1,
       },
