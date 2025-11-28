@@ -1,7 +1,10 @@
 {
   "name": "nodejs-starter",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
@@ -24,7 +27,6 @@
     "express-async-handler": "^1.2.0",
     "express-rate-limit": "^8.1.0",
     "google-auth-library": "^10.3.0",
-    "ioredis": "^5.8.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.2",
     "morgan": "^1.10.1",

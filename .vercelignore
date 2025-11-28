@@ -7,8 +7,3 @@ node_modules
 .idea
 coverage
 .nyc_output
-*.md
-!README.md
-src
-tsconfig.json
-.gitignore
