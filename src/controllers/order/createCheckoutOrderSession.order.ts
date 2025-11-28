@@ -43,7 +43,7 @@ export const createCheckOutSession = async (
             name: "Cart Checkout",
             description: "All products in your cart with discount applied",
           },
-          unit_amount: totalAfterDiscount * 100, 
+          unit_amount: totalAfterDiscount * 100,
         },
         quantity: 1,
       },
@@ -52,7 +52,9 @@ export const createCheckOutSession = async (
     let session = await stripe.checkout.sessions.create({
       line_items,
       mode: "payment",
-      success_url: `http://localhost:3000/order/confirm?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${
+        process.env.FRONTEND_URL || "http://localhost:3001"
+      }/order/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `http://localhost:3000/`,
       customer_email: user.email,
       payment_method_types: ["card"],
@@ -72,8 +74,6 @@ export const createCheckOutSession = async (
       message: "Checkout session created successfully",
       url: session.url,
     });
-
-   
   } catch (error) {
     next(error);
   }

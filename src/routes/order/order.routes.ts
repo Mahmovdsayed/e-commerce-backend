@@ -1,14 +1,15 @@
-import { Router } from "express";
+import express, { Router } from "express";
 import { createCashOrder } from "../../controllers/order/createCashOrder.order.js";
 import expressAsyncHandler from "express-async-handler";
 import { auth } from "../../middlewares/auth.middleware.js";
 import { validationMiddleware } from "../../middlewares/validation.middleware.js";
 import { createCashOrderSchema } from "../../validation/order/order.validation.js";
 import { createCheckOutSession } from "../../controllers/order/createCheckoutOrderSession.order.js";
-import { createOrderAfterPayment } from "../../controllers/order/createOrderAfterPayment.order.js";
 import { adminAuth } from "../../middlewares/admin.middleware.js";
 import { getAllOrders } from "../../controllers/order/getAllOrders.order.js";
 import { cacheMiddleware } from "../../middlewares/cache.middleware.js";
+
+import { stripeWebhook } from "../../controllers/order/stripeWebhook.order.js";
 
 const router = Router();
 
@@ -26,7 +27,7 @@ router.post(
   expressAsyncHandler(createCheckOutSession)
 );
 
-router.get("/confirm", expressAsyncHandler(createOrderAfterPayment));
+router.post("/webhook", expressAsyncHandler(stripeWebhook));
 
 router.get(
   "/all",

@@ -46,7 +46,7 @@ This project provides a **complete backend solution** for modern online stores, 
 - **🤖 AI Integration**: Leverages **Google Gemini AI** to generate product descriptions, SEO metadata, and marketing plans.
 - **📊 Advanced Analytics**: Dashboards for sales, revenue, top products, and customer insights.
 - **☁️ Media Management**: Image uploads and optimization using **Cloudinary** and **Sharp**.
-- **⚡ High Performance**: **Redis** caching for cart operations and session management.
+- **🚀 Serverless Ready**: Optimized for **Vercel** deployment with no Redis dependency.
 - **🛡️ Security**: Rate limiting, Helmet (headers), CORS, and input validation with **Zod**.
 
 ---
@@ -57,12 +57,12 @@ This project provides a **complete backend solution** for modern online stores, 
 - **Language**: TypeScript
 - **Framework**: Express.js
 - **Database**: MongoDB (Mongoose ORM)
-- **Caching**: Redis (ioredis)
 - **Authentication**: JWT, Google Auth Library, Nodemailer
-- **Payments**: Stripe API
+- **Payments**: Stripe API (with Webhooks)
 - **AI**: Google Generative AI SDK
 - **File Storage**: Cloudinary, Multer
 - **Validation**: Zod
+- **Deployment**: Vercel
 
 ---
 
@@ -93,7 +93,6 @@ Ensure you have the following installed:
 - **Node.js** (v18 or higher)
 - **npm** or **yarn**
 - **MongoDB** (Local or Atlas)
-- **Redis** (Local or Cloud)
 
 ### Installation
 
@@ -130,6 +129,8 @@ Create a `.env` file in the root directory and configure the following variables
 | `CLOUDINARY_API_KEY`    | Cloudinary API Key              | `your-api-key`                        |
 | `CLOUDINARY_API_SECRET` | Cloudinary API Secret           | `your-api-secret`                     |
 | `STRIPE_SECRET_KEY`     | Stripe Secret Key               | `sk_test_...`                         |
+| `STRIPE_WEBHOOK_SECRET` | Stripe Webhook Secret           | `whsec_...`                           |
+| `FRONTEND_URL`          | Frontend application URL        | `http://localhost:3001`               |
 | `GEMINI_API_KEY`        | Google Gemini AI API Key        | `your-gemini-key`                     |
 
 ### Running the Application
@@ -207,12 +208,12 @@ The server will start at `http://localhost:3000`.
 
 ### 📦 Orders (`/order`)
 
-| Method | Endpoint                  | Description                    |
-| :----- | :------------------------ | :----------------------------- |
-| `POST` | `/order/cash/:cartId`     | Place Cash on Delivery order   |
-| `POST` | `/order/checkout/:cartId` | Create Stripe Checkout session |
-| `GET`  | `/order/confirm`          | Confirm Stripe payment         |
-| `GET`  | `/order/all`              | Get all orders (**Admin**)     |
+| Method | Endpoint                  | Description                       |
+| :----- | :------------------------ | :-------------------------------- |
+| `POST` | `/order/cash/:cartId`     | Place Cash on Delivery order      |
+| `POST` | `/order/checkout/:cartId` | Create Stripe Checkout session    |
+| `POST` | `/order/webhook`          | Stripe webhook (payment callback) |
+| `GET`  | `/order/all`              | Get all orders (**Admin**)        |
 
 ### 💳 Payments (`/payment`)
 

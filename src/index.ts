@@ -1,5 +1,8 @@
-import express, { NextFunction, Request, Response } from "express";
+
 import { config } from "dotenv";
+config({ path: "./.env.local" });
+
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 
 import { connectToDatabase } from "./DB/connection.js";
@@ -27,8 +30,6 @@ import {
   authRateLimiter,
 } from "./middlewares/authRateLimiter.middleware.js";
 
-config({ path: "./.env.local" });
-
 const app = express();
 
 // ✅ Global middlewares
@@ -41,6 +42,10 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
+
+// ⚠️ IMPORTANT: Stripe webhook needs raw body for signature verification
+// This must come BEFORE express.json() middleware
+app.use("/order/webhook", express.raw({ type: "application/json" }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
