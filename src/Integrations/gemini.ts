@@ -1,33 +1,26 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+import { google } from "../helpers/ai.js";
+import { generateText, generateObject } from "ai";
+import { z } from "zod";
 
 export async function generateDescriptionViaGemini(
   productName: string,
   category: string,
   brief: string
 ) {
-  const model = ai.getGenerativeModel({
-    model: "gemini-2.5-flash-lite",
-    generationConfig: {
-      maxOutputTokens: 250,
-    },
-    systemInstruction: `You are an AI assistant that generates persuasive product descriptions for an e-commerce website.
-                        Always highlight the product’s unique features, benefits, and why it stands out.
-                        The description should be clear, engaging, and written in a professional marketing tone.
-                        Length: 100–150 words.`,
-  });
-
   try {
-    const result = await model.generateContent(
-      `Product name: ${productName}
-            Category: ${category}
-            Additional info: ${brief}
+    const { text } = await generateText({
+      model: google("gemini-1.5-flash"),
+      system: `You are an expert e-commerce copywriter. 
+               Your goal is to write a persuasive, engaging, and SEO-friendly product description.
+               Focus on benefits, not just features. Use sensory words and a professional yet appealing tone.
+               Length: 100–150 words.`,
+      prompt: `Product: ${productName}
+               Category: ${category}
+               Key Features/Brief: ${brief}
+               
+               Write a compelling description that makes the customer want to buy immediately.`,
+    });
 
-   Task: Write a compelling product description using this information.`
-    );
-
-    const text = result.response.text().replace(/\*/g, "").trim();
     return text;
   } catch (error) {
     console.error("Error generating description:", error);
@@ -42,39 +35,30 @@ export async function generateSeoViaGemini(
   tags: string[] = [],
   materials: string[] = []
 ) {
-  const model = ai.getGenerativeModel({
-    model: "gemini-2.5-flash-lite",
-    generationConfig: {
-      maxOutputTokens: 300,
-    },
-    systemInstruction: `You are an AI SEO assistant for e-commerce.
-                        Generate optimized SEO content for the product.
-                        Output must be in JSON format with fields:
-                        - keywords: an array of 5–10 highly relevant SEO keywords.
-                        - metaTitle: a concise, engaging SEO title (max 60 characters).
-                        - metaDescription: a persuasive meta description (max 160 characters).
-                        Make sure keywords reflect the product’s features, benefits, and category.`,
-  });
-
   try {
-    const result = await model.generateContent(
-      `Product name: ${productName}
-       Category: ${category}
-       Description: ${description}
-       Tags: ${tags.join(", ")}
-       Materials: ${materials.join(", ")}
-       Task: Generate SEO metadata in JSON format.`
-    );
+    const { object } = await generateObject({
+      model: google("gemini-1.5-flash"),
+      schema: z.object({
+        keywords: z
+          .array(z.string())
+          .describe("5-10 high-ranking SEO keywords"),
+        metaTitle: z.string().max(60).describe("Click-worthy SEO title"),
+        metaDescription: z
+          .string()
+          .max(160)
+          .describe("Persuasive meta description"),
+      }),
+      system: `You are an SEO specialist for e-commerce.
+               Generate metadata that maximizes click-through rates (CTR) and search visibility.
+               Ensure keywords are relevant and high-volume.`,
+      prompt: `Product: ${productName}
+               Category: ${category}
+               Description: ${description}
+               Tags: ${tags.join(", ")}
+               Materials: ${materials.join(", ")}`,
+    });
 
-    const raw = result.response.text().trim();
-    const cleaned = raw.replace(/```json|```/g, "");
-    const seo = JSON.parse(cleaned);
-
-    return {
-      keywords: seo.keywords || [],
-      metaTitle: seo.metaTitle || productName,
-      metaDescription: seo.metaDescription || description.slice(0, 150),
-    };
+    return object;
   } catch (error) {
     console.error("Error generating SEO:", error);
     throw error;
@@ -94,44 +78,34 @@ export async function generateDetailedMarketingPlan(
   },
   tone: string
 ) {
-  const model = ai.getGenerativeModel({
-    model: "gemini-2.5-flash",
-    generationConfig: {
-      maxOutputTokens: 1200,
-    },
-    systemInstruction: `You are an expert e-commerce marketing strategist.
-                        Create a *detailed, actionable marketing plan* for running ad campaigns.
-                        The plan should NOT create ad copy. 
-                        It should include:
-                        - Campaign objective
-                        - Audience breakdown
-                        - Tone & messaging guidance
-                        - Content strategy (types, formats, recommended sizes)
-                        - Budget & bidding suggestions
-                        - Campaign setup steps (for the chosen platform)
-                        - Schedule (when/how often to post or run ads)
-                        - KPIs to monitor + A/B testing suggestions
-                        Output in a structured format.`,
-  });
-
   try {
-    const result = await model.generateContent(
-      `Product: ${productName}
-       Category: ${category}
-       Description: ${description}
-       Platform: ${platform}
-       Audience: Age ${audience.age || "N/A"}, Gender: ${
-        audience.gender || "All"
-      }, 
-                 Location: ${audience.location || "Global"}, Interests: ${
-        audience.interests?.join(", ") || "General"
-      }
-       Tone: ${tone}
+    const { text } = await generateText({
+      model: google("gemini-1.5-pro"),
+      system: `You are a Senior Digital Marketing Strategist.
+               Create a comprehensive, actionable marketing campaign plan.
+               Do not write the ad copy itself, but provide the STRATEGY.
+               Use Markdown formatting for clear structure (headers, bullet points).`,
+      prompt: `Product: ${productName}
+               Category: ${category}
+               Description: ${description}
+               Target Platform: ${platform}
+               Target Audience:
+                 - Age: ${audience.age || "N/A"}
+                 - Gender: ${audience.gender || "All"}
+                 - Location: ${audience.location || "Global"}
+                 - Interests: ${audience.interests?.join(", ") || "General"}
+               Brand Tone: ${tone}
 
-       Task: Generate a detailed, step-by-step marketing plan that the user can follow to launch ads.`
-    );
+               Develop a step-by-step marketing plan covering:
+               1. Campaign Objective
+               2. Audience Persona Deep Dive
+               3. Content Strategy (Formats, Hooks, Visuals)
+               4. Budget & Bidding Recommendations
+               5. Execution Timeline
+               6. KPIs & Metrics to Watch`,
+    });
 
-    return result.response.text().trim();
+    return text;
   } catch (error) {
     console.error("Error generating marketing plan:", error);
     throw error;

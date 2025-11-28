@@ -43,7 +43,7 @@ This project provides a **complete backend solution** for modern online stores, 
 - **🔐 Robust Authentication**: JWT-based auth (Access + Refresh Tokens), Google OAuth 2.0, and OTP Email Verification.
 - **🛒 Complete E-Commerce Flow**: Product management, shopping cart, discount codes, and order processing.
 - **💳 Secure Payments**: Integrated **Stripe** for secure checkout and payment processing.
-- **🤖 AI Integration**: Leverages **Google Gemini AI** to generate product descriptions, SEO metadata, and marketing plans.
+- **🤖 AI Integration**: Leverages **Vercel AI SDK** with **Google Gemini** to generate persuasive product descriptions, structured SEO metadata, and strategic marketing plans.
 - **📊 Advanced Analytics**: Dashboards for sales, revenue, top products, and customer insights.
 - **☁️ Media Management**: Image uploads and optimization using **Cloudinary** and **Sharp**.
 - **🚀 Serverless Ready**: Optimized for **Vercel** deployment with no Redis dependency.
@@ -59,7 +59,7 @@ This project provides a **complete backend solution** for modern online stores, 
 - **Database**: MongoDB (Mongoose ORM)
 - **Authentication**: JWT, Google Auth Library, Nodemailer
 - **Payments**: Stripe API (with Webhooks)
-- **AI**: Google Generative AI SDK
+- **AI**: Vercel AI SDK (`ai`, `@ai-sdk/google`)
 - **File Storage**: Cloudinary, Multer
 - **Validation**: Zod
 - **Deployment**: Vercel
@@ -155,114 +155,114 @@ The server will start at `http://localhost:3000`.
 
 ### 🔑 Authentication (`/auth`)
 
-| Method | Endpoint                | Description                    |
-| :----- | :---------------------- | :----------------------------- |
-| `POST` | `/auth/signup`          | Register a new user            |
-| `POST` | `/auth/signin`          | Sign in with email & password  |
-| `POST` | `/auth/google`          | Google OAuth sign in / sign up |
-| `POST` | `/auth/refresh-token`   | Refresh access token           |
-| `POST` | `/auth/logout`          | Logout user                    |
-| `POST` | `/auth/verify-email`    | Verify email with OTP          |
-| `POST` | `/auth/forgot-password` | Request password reset         |
-| `POST` | `/auth/reset-password`  | Reset password with token      |
+| Method | Endpoint                | Request Body                                       | Description                    |
+| :----- | :---------------------- | :------------------------------------------------- | :----------------------------- |
+| `POST` | `/auth/signup`          | `name`, `email`, `password`                        | Register a new user            |
+| `POST` | `/auth/signin`          | `email`, `password`                                | Sign in with email & password  |
+| `POST` | `/auth/google`          | `credential`                                       | Google OAuth sign in / sign up |
+| `POST` | `/auth/verify-email`    | `email`, `otp`                                     | Verify email with OTP          |
+| `POST` | `/auth/forgot-password` | `email`                                            | Request password reset link    |
+| `POST` | `/auth/reset-password`  | `email`, `token`, `newPassword`, `confirmPassword` | Reset password                 |
+| `POST` | `/auth/change-password` | `oldPassword`, `newPassword`                       | Change password                |
+| `POST` | `/auth/refresh-token`   | -                                                  | Refresh access token           |
+| `POST` | `/auth/logout`          | -                                                  | Logout user                    |
 
 ### 👤 User (`/user`)
 
-| Method | Endpoint                | Description              |
-| :----- | :---------------------- | :----------------------- |
-| `GET`  | `/user/getUser/:id`     | Get user profile         |
-| `PUT`  | `/user/updateUser/:id`  | Update user profile      |
-| `POST` | `/user/change-password` | Change password          |
-| `GET`  | `/user/orders`          | Get user's order history |
+| Method | Endpoint               | Request Body               | Description              |
+| :----- | :--------------------- | :------------------------- | :----------------------- |
+| `GET`  | `/user/getUser/:id`    | -                          | Get user profile         |
+| `PUT`  | `/user/updateUser/:id` | `name`, `address` (object) | Update user profile      |
+| `GET`  | `/user/orders`         | -                          | Get user's order history |
 
 ### 🛒 Products (`/product`)
 
-| Method   | Endpoint              | Description                               |
-| :------- | :-------------------- | :---------------------------------------- |
-| `GET`    | `/product/all`        | Get all products (Filter, Sort, Paginate) |
-| `GET`    | `/product/info/:id`   | Get single product details                |
-| `POST`   | `/product/add`        | Add new product (**Admin**)               |
-| `PATCH`  | `/product/edit/:id`   | Update product (**Admin**)                |
-| `DELETE` | `/product/delete/:id` | Delete product (**Admin**)                |
+| Method   | Endpoint              | Request Body                                                            | Description                 |
+| :------- | :-------------------- | :---------------------------------------------------------------------- | :-------------------------- |
+| `GET`    | `/product/all`        | -                                                                       | Get all products            |
+| `GET`    | `/product/info/:id`   | -                                                                       | Get single product details  |
+| `POST`   | `/product/add`        | `name`, `description`, `price`, `stock`, `categoryId`, `images` (files) | Add new product (**Admin**) |
+| `PATCH`  | `/product/edit/:id`   | Any product field                                                       | Update product (**Admin**)  |
+| `DELETE` | `/product/delete/:id` | -                                                                       | Delete product (**Admin**)  |
 
 ### 🏷️ Categories (`/category`)
 
-| Method   | Endpoint               | Description                 |
-| :------- | :--------------------- | :-------------------------- |
-| `GET`    | `/category/all`        | Get all categories          |
-| `GET`    | `/category/:id`        | Get category details        |
-| `POST`   | `/category/add`        | Add category (**Admin**)    |
-| `PATCH`  | `/category/edit/:id`   | Update category (**Admin**) |
-| `DELETE` | `/category/delete/:id` | Delete category (**Admin**) |
+| Method   | Endpoint               | Request Body                                                          | Description                 |
+| :------- | :--------------------- | :-------------------------------------------------------------------- | :-------------------------- |
+| `GET`    | `/category/all`        | -                                                                     | Get all categories          |
+| `GET`    | `/category/:id`        | -                                                                     | Get category details        |
+| `POST`   | `/category/add`        | `name`, `description`, `metaTitle`, `metaDescription`, `image` (file) | Add category (**Admin**)    |
+| `PATCH`  | `/category/edit/:id`   | Any category field                                                    | Update category (**Admin**) |
+| `DELETE` | `/category/delete/:id` | -                                                                     | Delete category (**Admin**) |
 
 ### 🛍️ Cart (`/cart`)
 
-| Method   | Endpoint               | Description           |
-| :------- | :--------------------- | :-------------------- |
-| `GET`    | `/cart/get`            | Get user cart         |
-| `POST`   | `/cart/add`            | Add item to cart      |
-| `PUT`    | `/cart/update`         | Update item quantity  |
-| `DELETE` | `/cart/remove/:id`     | Remove item from cart |
-| `DELETE` | `/cart/clear`          | Clear cart            |
-| `POST`   | `/cart/apply-discount` | Apply discount code   |
+| Method   | Endpoint               | Request Body            | Description           |
+| :------- | :--------------------- | :---------------------- | :-------------------- |
+| `GET`    | `/cart/get`            | -                       | Get user cart         |
+| `POST`   | `/cart/add`            | `productId`, `quantity` | Add item to cart      |
+| `PUT`    | `/cart/update`         | `productId`, `quantity` | Update item quantity  |
+| `POST`   | `/cart/apply-discount` | `code`                  | Apply discount code   |
+| `DELETE` | `/cart/remove/:id`     | -                       | Remove item from cart |
+| `DELETE` | `/cart/clear`          | -                       | Clear cart            |
 
 ### 📦 Orders (`/order`)
 
-| Method | Endpoint                  | Description                       |
-| :----- | :------------------------ | :-------------------------------- |
-| `POST` | `/order/cash/:cartId`     | Place Cash on Delivery order      |
-| `POST` | `/order/checkout/:cartId` | Create Stripe Checkout session    |
-| `POST` | `/order/webhook`          | Stripe webhook (payment callback) |
-| `GET`  | `/order/all`              | Get all orders (**Admin**)        |
+| Method | Endpoint                  | Request Body               | Description                    |
+| :----- | :------------------------ | :------------------------- | :----------------------------- |
+| `POST` | `/order/cash/:cartId`     | `shippingAddress` (object) | Place Cash on Delivery order   |
+| `POST` | `/order/checkout/:cartId` | `shippingAddress` (object) | Create Stripe Checkout session |
+| `POST` | `/order/webhook`          | Stripe Signature           | Stripe webhook listener        |
+| `GET`  | `/order/all`              | -                          | Get all orders (**Admin**)     |
 
 ### 💳 Payments (`/payment`)
 
-| Method | Endpoint                     | Description                |
-| :----- | :--------------------------- | :------------------------- |
-| `GET`  | `/payment/user/:userId`      | Get user payments          |
-| `POST` | `/payment/refund/:paymentId` | Refund payment (**Admin**) |
+| Method | Endpoint                     | Request Body | Description                |
+| :----- | :--------------------------- | :----------- | :------------------------- |
+| `GET`  | `/payment/user/:userId`      | -            | Get user payments          |
+| `POST` | `/payment/refund/:paymentId` | -            | Refund payment (**Admin**) |
 
 ### 🎟️ Discounts (`/discount`)
 
-| Method   | Endpoint               | Description                   |
-| :------- | :--------------------- | :---------------------------- |
-| `GET`    | `/discount/all`        | Get all discounts (**Admin**) |
-| `POST`   | `/discount/add`        | Create discount (**Admin**)   |
-| `PATCH`  | `/discount/edit/:id`   | Update discount (**Admin**)   |
-| `DELETE` | `/discount/delete/:id` | Delete discount (**Admin**)   |
+| Method   | Endpoint               | Request Body                                                         | Description                   |
+| :------- | :--------------------- | :------------------------------------------------------------------- | :---------------------------- |
+| `GET`    | `/discount/all`        | -                                                                    | Get all discounts (**Admin**) |
+| `POST`   | `/discount/add`        | `code`, `discountType`, `discountValue`, `minCartValue`, `expiresAt` | Create discount (**Admin**)   |
+| `PATCH`  | `/discount/edit/:id`   | Any discount field                                                   | Update discount (**Admin**)   |
+| `DELETE` | `/discount/delete/:id` | -                                                                    | Delete discount (**Admin**)   |
 
 ### ⭐ Reviews (`/reviews`)
 
-| Method   | Endpoint                         | Description     |
-| :------- | :------------------------------- | :-------------- |
-| `GET`    | `/reviews/all`                   | Get all reviews |
-| `POST`   | `/reviews/add-review/:productId` | Add review      |
-| `PATCH`  | `/reviews/edit/:id`              | Edit review     |
-| `DELETE` | `/reviews/delete/:id`            | Delete review   |
+| Method   | Endpoint                         | Request Body              | Description     |
+| :------- | :------------------------------- | :------------------------ | :-------------- |
+| `GET`    | `/reviews/all`                   | -                         | Get all reviews |
+| `POST`   | `/reviews/add-review/:productId` | `rating` (1-5), `comment` | Add review      |
+| `PATCH`  | `/reviews/edit/:id`              | `rating`, `comment`       | Edit review     |
+| `DELETE` | `/reviews/delete/:id`            | -                         | Delete review   |
 
 ### 📩 Messages (`/message`)
 
-| Method | Endpoint                       | Description                  |
-| :----- | :----------------------------- | :--------------------------- |
-| `POST` | `/message/send`                | Send contact message         |
-| `GET`  | `/message/all`                 | Get all messages (**Admin**) |
-| `POST` | `/message/response/:messageId` | Reply to message (**Admin**) |
+| Method | Endpoint                       | Request Body                          | Description                  |
+| :----- | :----------------------------- | :------------------------------------ | :--------------------------- |
+| `POST` | `/message/send`                | `name`, `email`, `subject`, `message` | Send contact message         |
+| `GET`  | `/message/all`                 | -                                     | Get all messages (**Admin**) |
+| `POST` | `/message/response/:messageId` | `response`                            | Reply to message (**Admin**) |
 
 ### 🤖 AI Tools (`/ai`)
 
-| Method | Endpoint                              | Description                  |
-| :----- | :------------------------------------ | :--------------------------- |
-| `POST` | `/ai/generate-description/:productId` | Generate product description |
-| `POST` | `/ai/generate-seo/:productId`         | Generate SEO tags            |
-| `POST` | `/ai/generate-marketing-plan`         | Generate marketing strategy  |
+| Method | Endpoint                              | Request Body                                                             | Description                    |
+| :----- | :------------------------------------ | :----------------------------------------------------------------------- | :----------------------------- |
+| `POST` | `/ai/generate-description/:productId` | `productName`, `category`, `brief`                                       | Generate product description   |
+| `POST` | `/ai/generate-seo/:productId`         | `productName`, `category`, `description`, `tags`, `materials`            | Generate structured SEO (JSON) |
+| `POST` | `/ai/generate-marketing-plan`         | `productName`, `category`, `description`, `platform`, `audience`, `tone` | Generate marketing strategy    |
 
 ### 📊 Analysis (`/analysis`)
 
-| Method | Endpoint                  | Description          |
-| :----- | :------------------------ | :------------------- |
-| `GET`  | `/analysis/overview`      | Dashboard overview   |
-| `GET`  | `/analysis/sales/monthly` | Monthly sales report |
-| `GET`  | `/analysis/top-products`  | Top selling products |
+| Method | Endpoint                  | Request Body | Description          |
+| :----- | :------------------------ | :----------- | :------------------- |
+| `GET`  | `/analysis/overview`      | -            | Dashboard overview   |
+| `GET`  | `/analysis/sales/monthly` | -            | Monthly sales report |
+| `GET`  | `/analysis/top-products`  | -            | Top selling products |
 
 ---
 

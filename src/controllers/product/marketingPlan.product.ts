@@ -1,11 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import {
-  generateDescriptionViaGemini,
-  generateDetailedMarketingPlan,
-} from "../../Integrations/gemini.js";
-import { AppError } from "../../utils/AppError.js";
-import { isValidObjectId } from "mongoose";
-import productModel from "../../DB/Models/product.model.js";
+import { generateDetailedMarketingPlan } from "../../Integrations/gemini.js";
 
 export const MarketingPlan = async (
   req: Request,
@@ -13,8 +7,9 @@ export const MarketingPlan = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { platform, audience, tone, productName, category, description } = req.body;
-    
+    const { platform, audience, tone, productName, category, description } =
+      req.body;
+
     const marketingPlan = await generateDetailedMarketingPlan(
       productName,
       category,
@@ -29,5 +24,7 @@ export const MarketingPlan = async (
       message: "Marketing plan generated successfully",
       data: marketingPlan,
     });
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
